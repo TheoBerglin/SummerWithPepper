@@ -1,12 +1,15 @@
-import requests
 import base64
 import json
 import time as time_module
+
+import requests
 import yaml
+import os
 
 TOKEN_URL = 'https://api.vasttrafik.se/token'
 API_BASE_URL = 'https://api.vasttrafik.se/bin/rest.exe/v2'
-API_SETTINGS_FILE = 'api_settings.yml'
+API_SETTINGS_FILE = os.path.dirname(os.path.abspath(__file__)) +'\\api_settings.yml'
+
 
 def fetch_token(key, secret):
     headers = {
