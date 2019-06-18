@@ -81,10 +81,14 @@ class VasttrafikClient:
         if date is not None and time is not None:
             get_str = '/departureBoard?id=' + str(stopID) + '&date=' + date + '&time=' + time
         else:
-            get_str = '/departureBoard?id=%d&date=%s&time=%s' % \
+            get_str = '/departureBoard?id=%s&date=%s&time=%s' % \
                       (stopID, time_module.strftime("%Y-%m-%d"), time_module.strftime("%H:%M"))
         data = self.get(get_str, query_params)
-        return data['DepartureBoard']['Departure']
+        try:
+            return data['DepartureBoard']['Departure']
+        except KeyError:
+            # No departures found
+            return list()
 
     # /trip endpoint
     def calculate_trip_stations(self, start_id, stop_id, query_params=None):
@@ -106,7 +110,6 @@ class VasttrafikClient:
             'Authorization': 'Bearer ' + self.token
         }
         res = requests.get(url, headers=headers)
-        print (url)
         if res.status_code == 200:
             return json.loads(res.content.decode('UTF-8'))
         else:
