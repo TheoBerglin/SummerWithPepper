@@ -1,0 +1,13 @@
+topic: ~VasttrafikGreeting()
+language: enu
+
+concept:(depStops) [saltholmen brunnsparken lindholmen framnäsgatan "pilbågsgatan" "gamlestads torg"]
+concept:(arrStops) [saltholmen brunnsparken lindholmen framnäsgatan pilbågsgatan]
+
+u:(hello) hello ^goto(service)
+proposal: %service How can i be of service
+    u1:(["Next rides" "Rides"]) Here you go lad! $next_ride=1
+    u1:(["Trip" "Take me home"]) Sure mate! Where do you want to go?
+        u2:(_~arrStops) OK. From where? $arrStop=$1
+            u3:(_~depStops) OK. From $1 to $arrStop $depStop=$1 $trip=1
+        
