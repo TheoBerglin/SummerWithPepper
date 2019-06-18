@@ -1,19 +1,5 @@
 from APIConnections.VasttrafikAPI import VasttrafikClient
-
-
-def clean_close_stops(close_stops):
-    """
-    Methods that removes duplicate close stops. That is the different sections of each stop.
-    :param close_stops: Close stops data from API
-    :return: cleaned close stops data
-    """
-    cleaned = list()
-    found_stations = list()
-    for stop in close_stops:
-        if stop['name'] not in found_stations:
-            cleaned.append(stop)
-            found_stations.append(stop['name'])
-    return cleaned
+import datetime
 
 
 class Vasttrafik:
@@ -26,16 +12,12 @@ class Vasttrafik:
         """
         self.lat = lat
         self.long = long
+        # Client
         self.client = VasttrafikClient()
-
-    def show_next_departure(self, stop_name=None):
-        """
-        Should display the next departures given Peppers location.
-        :param stop_name: Check next ride for this stop. Default None
-        :return:
-        """
-        departure_data = self.extract_next_departure(stop_name)
-        self.display_next_ride(departure_data)  # Display the extracted data
+        # Fields for data handling
+        self.next_departure = None
+        self.time_extracted = None
+        self.trip = None
 
     def extract_next_departure(self, stop_name=None):
         """
@@ -44,6 +26,7 @@ class Vasttrafik:
         :return: dict of departure data departure_data['Station_name'] = API_data
         """
         departure_data = dict()
+        # If we are given a stop, use it. Else, based on location
         if stop_name is not None:
             try:
                 stop_ids = self.client.get_stops_by_name(stop_name)
@@ -52,37 +35,64 @@ class Vasttrafik:
                 print e
         else:
             close_stops = self.client.get_nearby_stops(self.lat, self.long)  # get_close_stops
-            close_stops = clean_close_stops(close_stops)  # Remove duplicates
+            close_stops = self.remove_duplicate_stops(close_stops)  # Remove duplicates
             for stop in close_stops:  # Get all close stop departures
                 departure_data[stop['name']] = self.client.get_departures(stop['id'])  # get_departures from close_stops
-        return departure_data
+        self.next_departure = departure_data
+        self.set_extracted_time()
 
-    def plan_a_trip(self):
+    def calculate_trip(self, start_station='Lindholmen', stop_station='Prinsgatan'):
         """
-        Method for planning a trip.
-        Should initiate dialog, retrieve start and stop and calculate trip
+        Method for calculating a trip.
+        Should calculate trip from a given station to another
+        :param start_station: Station for which the trip should start from. Default Lindholmen
+        :param stop_station: End station of the trip. Default Prinsgatan
         :return:
         """
         pass
 
-    def display_a_trip(self, data):
+    def get_trip(self):
         """
-        Should display a trip. Either via speech, tablet or both
-        :param data: The data needed for displaying a trip
-        :return:
+        :return: Latest calculated trip
         """
-        pass
+        return self.trip
 
-    def display_next_ride(self, data):
+    def get_next_departure(self):
         """
-        Should display the next rides. Either via speech, tablet or both
-        :param data: The data needed for displaying the next rides
+        :return: Latest extracted departures
+        """
+        return self.next_departure
+
+    def get_extracted_time(self):
+        """
+        :return: Time for latest extracted departure data
+        """
+        return self.time_extracted
+
+    def set_extracted_time(self, time=datetime.datetime.now()):
+        """
+        :param time: Time when next departure data was extracted. Default is now.
         :return:
         """
-        pass
+        self.time_extracted = time
+
+    @staticmethod
+    def remove_duplicate_stops(close_stops):
+        """
+        Methods that removes duplicate close stops. That is the different sections of each stop.
+        :param close_stops: Close stops data from API
+        :return: cleaned close stops data
+        """
+        cleaned = list()
+        found_stations = list()
+        for stop in close_stops:
+            if stop['name'] not in found_stations:
+                cleaned.append(stop)
+                found_stations.append(stop['name'])
+        return cleaned
 
 
 if __name__ == '__main__':
     v = Vasttrafik()
-    v.show_next_departure('Brunnsparken')
-    print 'for debug'
+    v.extract_next_departure('Brunnsparken')
+    print ' for debug'
