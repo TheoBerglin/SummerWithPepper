@@ -4,7 +4,7 @@ language: enu
 concept:(depStops) [saltholmen brunnsparken lindholmen framnäsgatan "pilbågsgatan" "gamlestads torg"]
 concept:(arrStops) [saltholmen brunnsparken lindholmen framnäsgatan pilbågsgatan]
 
-u:(hello) hello ^goto(service)
+u:(chocolate) hello ^goto(service)
 proposal: %service How can i be of service
     u1:(["Next rides" "Rides"]) Here you go lad! $next_ride=1
     u1:(["Trip" "Take me home"]) Sure mate! Where do you want to go?
