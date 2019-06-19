@@ -12,34 +12,46 @@ class HumanGreeterModule(ALModule):
     def __init__(self, name):
         ALModule.__init__(self, name)
         self.name = name
-        self.memory = ALProxy("ALMemory")
         self.tts = ALProxy("ALTextToSpeech")
         self.motion = ALProxy("ALMotion")
+        self.memory = ALProxy("ALMemory")
         self.dialog = ALProxy("ALDialog")
         self.dialog.setLanguage("English")
         self.tts.say("Im up and running")
         self.lookForHuman()
 
     def lookForHuman(self):
+        """ Looks for human"""
         self.tts.say("Im searching for humanoids")
         self.memory.subscribeToEvent("FaceDetected", self.name, "onFaceDetected")
         self.motion.move(0.05, 0.0, 0.0)
         self.onFaceDetected()
 
     def onFaceDetected(self, *_args):
+        """ Callback for face detected"""
         self.memory.unsubscribeToEvent("FaceDetected", self.name)
         self.tts.say("Hello humanoid")
         self.motion.stopMove()
         self.memory.subscribeToEvent("next_ride", self.name, "nextRide")
         self.memory.subscribeToEvent("trip", self.name, "trip")
-        self.topic = self.dialog.loadTopic("home/nao/Snack_enu.top")
+        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
         self.dialog.subscribe(self.name)
         self.dialog.activateTopic(self.topic)
 
     def nextRide(self, *_args):
+        """ Callback when next_ride is set"""
         self.tts.say("Here are the next rides")
 
+        self.memory.unsubscribeToEvent("next_ride", self.name)
+        self.memory.unsubscribeToEvent("trip", self.name)
+
+        self.dialog.deactivateTopic(self.topic)
+        self.dialog.unloadTopic(self.topic)
+        self.dialog.unsubscribe(self.name)
+        self.lookForHuman()
+
     def trip(self, *_args):  # exit as of now
+        """ Callback when trip is set"""
         self.tts.say("Where do you want to go")
         self.memory.unsubscribeToEvent("next_ride", self.name)
         self.memory.unsubscribeToEvent("trip", self.name)
@@ -49,6 +61,8 @@ class HumanGreeterModule(ALModule):
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
+
+        self.lookForHuman()
 
     def shutoff(self):
         try:
@@ -70,6 +84,7 @@ class HumanGreeterModule(ALModule):
 
 def main():
     myBroker = ALBroker("myBroker", "0.0.0.0", 0, ROBOT_IP, ROBOT_PORT)
+
     global HumanGreeter
     HumanGreeter = HumanGreeterModule("HumanGreeter")
 
