@@ -17,26 +17,38 @@ class HumanGreeterModule(ALModule):
         self.memory = ALProxy("ALMemory")
         self.dialog = ALProxy("ALDialog")
         self.dialog.setLanguage("English")
+        self.tablet = ALProxy("ALTabletService")
         self.tts.say("Im up and running")
         self.lookForHuman()
 
     def lookForHuman(self):
         """ Looks for human"""
-        self.tts.say("Im searching for humanoids")
+        self.tts.say("Im searching for human life")
         self.memory.subscribeToEvent("FaceDetected", self.name, "onFaceDetected")
+        #self.memory.subscribeToEvent("MotionDetected", self.name, "obstacleTest")
         self.motion.move(0.05, 0.0, 0.0)
         self.onFaceDetected()
+
+    def obstacleTest(self, *_args):
+        self.memory.unsubscribeToEvent("MotionDetected", self.name)
+        print "Obstacle detected"
+        self.tts.say("Oh no there is something in the way")
 
     def onFaceDetected(self, *_args):
         """ Callback for face detected"""
         self.memory.unsubscribeToEvent("FaceDetected", self.name)
-        self.tts.say("Hello humanoid")
+        print "Face detected"
+        self.tts.say("Hello carbon-based lifeform")
         self.motion.stopMove()
         self.memory.subscribeToEvent("next_ride", self.name, "nextRide")
         self.memory.subscribeToEvent("trip", self.name, "trip")
         self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
         self.dialog.subscribe(self.name)
         self.dialog.activateTopic(self.topic)
+        #self.tablet.enableWifi()
+        #self.tablet.showWebview("http://wap.vasttrafik.se/QueryFormAsync.aspx?hpl=Brunnsparken&lang=en")
+        #time.sleep(10)
+        #self.tablet.hideWebview()
 
     def nextRide(self, *_args):
         """ Callback when next_ride is set"""
