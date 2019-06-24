@@ -5,7 +5,7 @@ import datetime
 
 class Vasttrafik:
 
-    def __init__(self, lat=57.705824, long=11.940407):
+    def __init__(self, save_path, lat=57.705824, long=11.940407):
         """
         Constructor for the Vasttrafik class
         :param lat: Latitude location of Pepper, default Ericsson Lindholmen
@@ -21,6 +21,7 @@ class Vasttrafik:
         self.trip = None
 
         self.html_data = None
+        self.save_path = save_path
 
     # Get-methods
     def get_trip(self):
@@ -99,7 +100,7 @@ class Vasttrafik:
         pass
 
     # Create next departure html
-    def create_departure_html(self):
+    def create_departure_html(self, name='departure'):
         """
         Create the next departure data html page
         :return:
@@ -120,7 +121,7 @@ class Vasttrafik:
         # End of full code
         self.add_html_data('</body>')
         self.add_html_data('</html>')
-        self.write_html_file('departure')
+        self.write_html_file(name)
 
     def extract_departure_table_data(self):
         """
@@ -243,7 +244,7 @@ class Vasttrafik:
         :param name: name of the output html file
         :return:
         """
-        with open('%s.htm' % name, 'w+') as output_file:
+        with open(r'%s/%s.htm' % (self.save_path, name), 'w+') as output_file:
             # Write template
             with open('html_template.txt', 'r') as template:
                 output_file.writelines(template)
@@ -263,8 +264,9 @@ def replace_swedish_html(l):
 
 
 if __name__ == '__main__':
-    v = Vasttrafik()
-    v.extract_next_departure('Brunnsparken')
-    v.create_departure_html()
+    v = Vasttrafik('C:\Users\etehreb\Documents\SummerWithPepper\Applications')
+    #v.extract_next_departure()
+    html_name = 'departure'
+    v.create_departure_html(html_name)
     print 'for debug'
     # sorted(apa, key=lambda x: (int(x['sname'])))
