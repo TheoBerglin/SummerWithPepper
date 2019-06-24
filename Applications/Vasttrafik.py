@@ -166,9 +166,9 @@ class Vasttrafik:
             new_departure_data = list()
             for dep in departure_data:
                 # Add structure for combination of name+destination
-                if found_combinations.has_key(dep['sname']) is False:
+                if dep['sname'] not in found_combinations:
                     found_combinations[dep['sname']] = dict()
-                if found_combinations[dep['sname']].has_key(dep['direction']) is False:
+                if dep['direction'] not in found_combinations[dep['sname']]:
                     found_combinations[dep['sname']][dep['direction']] = 0
                 # Add first two occurrences of combination
                 if found_combinations[dep['sname']][dep['direction']] < 2:
@@ -210,19 +210,22 @@ class Vasttrafik:
         # Extract data needed
         front_c = departure['1']['fgColor']
         back_c = departure['1']['bgColor']
-        name = departure['1']['sname']  # .encode('utf-8')
-        direction = departure['1']['direction']  # .encode('utf-8')
-        if departure['1'].has_key('rtTime'):
+        name = departure['1']['sname']
+        direction = departure['1']['direction']
+        if 'rtTime' in departure['1']:
             t1 = departure['1']['rtTime']
         else:
             t1 = departure['1']['time']
+        t1 = self.time_to_departure(t1)
+
         if departure['2'] is None:
             t2 = '--'
         else:
-            if departure['2'].has_key('rtTime'):
+            if 'rtTime' in departure['2']:
                 t2 = departure['2']['rtTime']
             else:
                 t2 = departure['2']['time']
+            t2 = self.time_to_departure(t2)
         # Add html rows
         self.add_html_data('<tr>')
         self.add_html_data('<td align="center" style="color:%s;background-color:%s;">%s</td>' % (back_c, front_c, name))
@@ -230,6 +233,21 @@ class Vasttrafik:
         self.add_html_data('<td >%s</td>' % t1)
         self.add_html_data('<td >%s</td>' % t2)
         self.add_html_data('</tr>')
+
+    @staticmethod
+    def time_to_departure(t):
+        """
+        Time from now to time t in minutes.
+        :param t: time given as a string on format "HH:MM"
+        :return: String, time from now to time t in minutes. 0 is returned as now.
+        """
+        now = datetime.datetime.now()
+        now_str = now.strftime('%H:%M')
+        diff = datetime.datetime.strptime(t, '%H:%M') - datetime.datetime.strptime(now_str, '%H:%M')
+        t = int(diff.total_seconds() / 60)
+        if t == 0:
+            t = 'Now'
+        return str(t)
 
     def add_html_data(self, d):
         """
@@ -266,7 +284,7 @@ def replace_swedish_html(l):
 
 if __name__ == '__main__':
     v = Vasttrafik('C:\Users\etehreb\Documents\SummerWithPepper\Applications')
-    #v.extract_next_departure()
+    # v.extract_next_departure()
     html_name = 'departure'
     v.create_departure_html(html_name)
     print 'for debug'
