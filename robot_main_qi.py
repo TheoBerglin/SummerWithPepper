@@ -22,6 +22,7 @@ class HumanGreeter(object):
         app.start()
         session = app.session
 
+        self.name = "HumanGreeter"
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
         # Subscribe to FaceDetected event
@@ -33,27 +34,31 @@ class HumanGreeter(object):
         self.dialog.setLanguage("English")
         self.tablet = session.service("ALTabletService")
         self.face_detection = session.service("ALFaceDetection")
-        self.face_detection.subscribe("HumanGreeter")
+        self.face_detection.subscribe(self.name)
 
+        self.face_id = 0
         self.got_face = False
         self.look_for_human()
 
     def look_for_human(self):
         self.tts.say("Im searching for human life")
-        self.dialog_running = False
+        #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
 
-    def on_human_tracked(self, value):
-        #print "Human tracked"
-        if not self.dialog_running:
-            self.initiate_dialog(value)
+    # def on_human_tracked(self, value):
+    #    """
+    #    Callback for event FaceDetected.
+    #   """
+    #   #print "Human tracked"
+    #   if not self.dialog_running:
+    #       self.initiate_dialog(value)
 
-    def initiate_dialog(self, value):
+    def on_human_tracked(self, value):
         """
         Callback for event FaceDetected.
         """
-        #self.face_subscriber.signal.disconnect(self.face_id)
+        self.face_subscriber.signal.disconnect(self.face_id)
         if value == []:  # empty value when the face disappears
             self.got_face = False
         elif not self.got_face:  # only speak the first time a face appears
@@ -70,7 +75,7 @@ class HumanGreeter(object):
             self.trip_id = self.trip_subscriber.signal.connect(self.trip)
 
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
-            self.dialog.subscribe("HumanGreeter")
+            self.dialog.subscribe(self.name)
             self.dialog.activateTopic(self.topic)
 
     def next_ride(self, *_args):
@@ -81,7 +86,15 @@ class HumanGreeter(object):
 
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
-        self.dialog.unsubscribe("HumanGreeter")
+        self.dialog.unsubscribe(self.name)
+
+        self.tablet.enableWifi()
+        ip = self.tablet.robotIp()
+        file_name = 'test.html'
+        self.tablet.showWebview('http://' + ip + '/apps/boot-config/' + file_name)
+        time.sleep(50)
+        self.tablet.hideWebview()
+
         self.look_for_human()
 
     def trip(self, *_args):
@@ -97,22 +110,20 @@ class HumanGreeter(object):
 
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
-        self.dialog.unsubscribe("HumanGreeter")
-
-        self.tablet.enableWifi()
-        self.tablet.showWebview("http://wap.vasttrafik.se/QueryFormAsync.aspx?hpl=Brunnsparken&lang=en")
-        time.sleep(100)
-        self.tablet.hideWebview()
+        self.dialog.unsubscribe(self.name)
 
         self.look_for_human()
 
     def shutoff(self):
+        """
+        Shutoff and unsubscribe to events
+        """
         try:
             #self.rides_subscriber.signal.disconnect(self.next_ride_id)
             #self.trip_subscriber.signal.disconnect(self.trip_id)
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
-            self.dialog.unsubscribe("HumanGreeter")
+            self.dialog.unsubscribe(self.name)
             print "Stopped dialog"
         except RuntimeError:
             pass
@@ -120,7 +131,7 @@ class HumanGreeter(object):
             pass
         try:
             self.face_subscriber.signal.disconnect(self.face_id)
-            self.face_detection.unsubscribe("HumanGreeter")
+            self.face_detection.unsubscribe(self.name)
             print "Unsubscribed to face"
         except RuntimeError:
             pass
