@@ -81,7 +81,7 @@ class VasttrafikClient:
         if date is not None and time is not None:
             get_str = '/departureBoard?id=' + str(stopID) + '&date=' + date + '&time=' + time
         else:
-            get_str = '/departureBoard?id=%s&date=%s&time=%s' % \
+            get_str = '/departureBoard?id=%s&timeSpan=30&date=%s&time=%s' % \
                       (stopID, time_module.strftime("%Y-%m-%d"), time_module.strftime("%H:%M"))
         data = self.get(get_str, query_params)
         try:

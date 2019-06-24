@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from APIConnections.VasttrafikAPI import VasttrafikClient
 import datetime
 
 
 class Vasttrafik:
-    
+
     def __init__(self, lat=57.705824, long=11.940407):
         """
         Constructor for the Vasttrafik class
@@ -19,6 +20,36 @@ class Vasttrafik:
         self.time_extracted = None
         self.trip = None
 
+        self.html_data = None
+
+    # Get-methods
+    def get_trip(self):
+        """
+        :return: Latest calculated trip
+        """
+        return self.trip
+
+    def get_next_departure(self):
+        """
+        :return: Latest extracted departures
+        """
+        return self.next_departure
+
+    def get_extracted_time(self):
+        """
+        :return: Time for latest extracted departure data
+        """
+        return self.time_extracted
+
+    # Set-methods
+    def set_extracted_time(self, time=datetime.datetime.now()):
+        """
+        :param time: Time when next departure data was extracted. Default is now.
+        :return:
+        """
+        self.time_extracted = time
+
+    # Next departure data extraction
     def extract_next_departure(self, stop_name=None):
         """
         Extract the next departure from a stop or a coordinate
@@ -41,41 +72,6 @@ class Vasttrafik:
         self.next_departure = departure_data
         self.set_extracted_time()
 
-    def calculate_trip(self, start_station='Lindholmen', stop_station='Prinsgatan'):
-        """
-        Method for calculating a trip.
-        Should calculate trip from a given station to another
-        :param start_station: Station for which the trip should start from. Default Lindholmen
-        :param stop_station: End station of the trip. Default Prinsgatan
-        :return:
-        """
-        pass
-
-    def get_trip(self):
-        """
-        :return: Latest calculated trip
-        """
-        return self.trip
-
-    def get_next_departure(self):
-        """
-        :return: Latest extracted departures
-        """
-        return self.next_departure
-
-    def get_extracted_time(self):
-        """
-        :return: Time for latest extracted departure data
-        """
-        return self.time_extracted
-
-    def set_extracted_time(self, time=datetime.datetime.now()):
-        """
-        :param time: Time when next departure data was extracted. Default is now.
-        :return:
-        """
-        self.time_extracted = time
-
     @staticmethod
     def remove_duplicate_stops(close_stops):
         """
@@ -91,8 +87,184 @@ class Vasttrafik:
                 found_stations.append(stop['name'])
         return cleaned
 
+    # Calculate a trip data extraction
+    def calculate_trip(self, start_station='Lindholmen', stop_station='Prinsgatan'):
+        """
+        Method for calculating a trip.
+        Should calculate trip from a given station to another
+        :param start_station: Station for which the trip should start from. Default Lindholmen
+        :param stop_station: End station of the trip. Default Prinsgatan
+        :return:
+        """
+        pass
+
+    # Create next departure html
+    def create_departure_html(self):
+        """
+        Create the next departure data html page
+        :return:
+        """
+        if self.get_next_departure() is None:
+            self.extract_next_departure()
+        table_data = self.extract_departure_table_data()
+        # self.next_departure = sorted(self.next_departure, key=lambda x: int(x['sname'])
+        self.html_data = list()  # Remove old shit
+        # Go through table data
+        for station, departure_data in table_data.iteritems():
+            self.add_departure_header(station)  # New station, new header
+            #  Go through each departure for the station
+            for departure in departure_data:
+                self.departure_row(departure)
+            self.add_html_data('</table>')  # End current table
+
+        # End of full code
+        self.add_html_data('</body>')
+        self.add_html_data('</html>')
+        self.write_html_file('departure')
+
+    def extract_departure_table_data(self):
+        """
+        Create table data out of extracted raw departure data from the API
+        :return:
+        """
+        self.clean_departure_data()
+        tables = dict()
+        # Extract 2 departures for each number+destination
+        for station, station_data in self.next_departure.iteritems():
+            ind = 0
+            table_data = list()
+            while ind < len(station_data):
+                if ind == len(station_data) - 1:
+                    data_dict = {'1': station_data[ind], '2': None}
+                    table_data.append(data_dict)
+                    ind += 1
+                else:
+                    if station_data[ind]['sname'] == station_data[ind + 1]['sname'] and \
+                            station_data[ind]['sname'] == station_data[ind + 1]['sname'] and \
+                            station_data[ind]['sname'] == station_data[ind + 1]['sname']:
+
+                        data_dict = {'1': station_data[ind], '2': station_data[ind + 1]}
+                        ind += 2
+                    else:
+                        data_dict = {'1': station_data[ind], '2': None}
+                        ind += 1
+                    table_data.append(data_dict)
+            tables[station] = table_data
+            # table_data[station]
+
+        return tables
+
+    def clean_departure_data(self):
+        """
+        Clean the departure data so that each combination has at maximum 2 departures.
+        :return:
+        """
+        for station, departure_data in self.next_departure.iteritems():
+            found_combinations = dict()
+            new_departure_data = list()
+            for dep in departure_data:
+                # Add structure for combination of name+destination
+                if found_combinations.has_key(dep['sname']) is False:
+                    found_combinations[dep['sname']] = dict()
+                if found_combinations[dep['sname']].has_key(dep['direction']) is False:
+                    found_combinations[dep['sname']][dep['direction']] = 0
+                # Add first two occurrences of combination
+                if found_combinations[dep['sname']][dep['direction']] < 2:
+                    new_departure_data.append(dep)
+                    found_combinations[dep['sname']][dep['direction']] += 1
+
+            self.next_departure[station] = self.sort_departure_board(new_departure_data)
+
+    @staticmethod
+    def sort_departure_board(l):
+        """
+        Sort a departure board based on name, direction and time. In that order
+        :param l: Departure board
+        :return:
+        """
+        return sorted(l, key=lambda x: (int(x['sname']), x['direction'], x['time']))
+
+    def add_departure_header(self, station='Station unknown'):
+        """
+        Header for a departure data table
+        :param station: The departures are from this station
+        :return:
+        """
+        self.add_html_data('<h2>%s</h2>' % station)
+        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01">')
+        self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;">')
+        self.add_html_data('<th align="left" scope="col">Line</th>')
+        self.add_html_data('<th align="left" scope="col">Destination</th>')
+        self.add_html_data('<th align="left" scope="col">Next departure</th>')
+        self.add_html_data('<th align="left" scope="col">Afterwards</th>')
+        self.add_html_data('</tr>')
+
+    def departure_row(self, departure):
+        """
+        Creates a html row given API departure data
+        :param departure: Departure data from the API
+        :return:
+        """
+        # Extract data needed
+        front_c = departure['1']['fgColor']
+        back_c = departure['1']['bgColor']
+        name = departure['1']['sname']  # .encode('utf-8')
+        direction = departure['1']['direction']  # .encode('utf-8')
+        if departure['1'].has_key('rtTime'):
+            t1 = departure['1']['rtTime']
+        else:
+            t1 = departure['1']['time']
+        if departure['2'] is None:
+            t2 = '--'
+        else:
+            if departure['2'].has_key('rtTime'):
+                t2 = departure['2']['rtTime']
+            else:
+                t2 = departure['2']['time']
+        # Add html rows
+        self.add_html_data('<tr>')
+        self.add_html_data('<td align="center" style="color:%s;background-color:%s;">%s</td>' % (back_c, front_c, name))
+        self.add_html_data('<td >%s</td>' % direction)
+        self.add_html_data('<td >%s</td>' % t1)
+        self.add_html_data('<td >%s</td>' % t2)
+        self.add_html_data('</tr>')
+
+    def add_html_data(self, d):
+        """
+        Add data to the field containing html data
+        :param d: data to be appended to the field
+        :return:
+        """
+        self.html_data.append('%s\n' % d.encode("utf-8", errors="ignore"))
+
+    def write_html_file(self, name):
+        """
+        Write the data of the field html_data to a specified output file with name NAME
+        :param name: name of the output html file
+        :return:
+        """
+        with open('%s.htm' % name, 'w+') as output_file:
+            # Write template
+            with open('html_template.txt', 'r') as template:
+                output_file.writelines(template)
+            # Write table data created by script
+            for l in self.html_data:
+                output_file.write(replace_swedish_html(l))
+
+
+def replace_swedish_html(l):
+    """
+    html has different encoding than utf-8. Replace swedish letters and special letters accordingly.
+    :param l: string that might contain special characters.
+    :return: string ready for html
+    """
+    l = l.replace('ä', '&auml;').replace('ö', '&ouml;').replace('å', '&aring;')
+    return l.replace('Ä', '&Auml;').replace('Ö', '&Ouml;').replace('Å', '&Aring;').replace('é', '&eacute;')
+
 
 if __name__ == '__main__':
     v = Vasttrafik()
     v.extract_next_departure('Brunnsparken')
-    print ' for debug'
+    v.create_departure_html()
+    print 'for debug'
+    # sorted(apa, key=lambda x: (int(x['sname'])))
