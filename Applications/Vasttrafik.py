@@ -111,7 +111,8 @@ class Vasttrafik:
         # self.next_departure = sorted(self.next_departure, key=lambda x: int(x['sname'])
         self.html_data = list()  # Remove old shit
         # Go through table data
-        for station, departure_data in table_data.iteritems():
+        for station in sorted(table_data):
+            departure_data = table_data[station]
             self.add_departure_header(station)  # New station, new header
             #  Go through each departure for the station
             for departure in departure_data:
