@@ -92,7 +92,12 @@ class VasttrafikClient:
 
     # /trip endpoint
     def calculate_trip_stations(self, start_id, stop_id, query_params=None):
-        return self.get('/trip?originId=%d&destId=%d' % (start_id, stop_id), query_params)
+        return self.get('/trip?originId=%s&destId=%s' % (start_id, stop_id), query_params)
+
+    # /Journey-details
+    def get_journey_details(self, ref, query_params=None):
+        get_str = '/journeyDetail?ref=%s' % ref
+        return self.get(get_str, query_params)
 
     def get(self, endpoint, query_params=None):
         url = API_BASE_URL + endpoint

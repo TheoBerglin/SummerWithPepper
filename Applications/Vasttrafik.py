@@ -89,15 +89,17 @@ class Vasttrafik:
         return cleaned
 
     # Calculate a trip data extraction
-    def calculate_trip(self, start_station='Lindholmen', stop_station='Prinsgatan'):
+    def calculate_trip(self, start_station='Lindholmen', end_station='Prinsgatan'):
         """
         Method for calculating a trip.
         Should calculate trip from a given station to another
         :param start_station: Station for which the trip should start from. Default Lindholmen
-        :param stop_station: End station of the trip. Default Prinsgatan
+        :param end_station: End station of the trip. Default Prinsgatan
         :return:
         """
-        pass
+        start_id = self.client.get_stops_by_name(start_station)[0]['id']
+        end_id = self.client.get_stops_by_name(end_station)[0]['id']
+        self.trip = self.client.calculate_trip_stations(start_id, end_id)
 
     # Create next departure html
     def create_departure_html(self, name='departure'):
@@ -287,5 +289,8 @@ if __name__ == '__main__':
     # v.extract_next_departure()
     html_name = 'departure'
     v.create_departure_html(html_name)
+    v.calculate_trip()
+    #ref_id = v.trip['TripList']['Trip'][0]['Leg'][1]['JourneyDetailRef']['ref']
+    #apa = v.client.get_journey_details(ref_id)
     print 'for debug'
     # sorted(apa, key=lambda x: (int(x['sname'])))
