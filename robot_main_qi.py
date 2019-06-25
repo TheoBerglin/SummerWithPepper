@@ -30,6 +30,9 @@ class HumanGreeter(object):
         session = app.session
 
         self.name = "HumanGreeter"
+        #self.lang = session.service("ALSpeechRecognition")
+        #self.lang.setLanguage('Swedish')
+
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
         # Subscribe to FaceDetected event
@@ -128,6 +131,18 @@ class HumanGreeter(object):
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
+
+        file_name = 'trip'
+        file_ending = '.htm'
+        full_file_name = file_name + file_ending
+        full_path = os.path.join(self.html_path, full_file_name)
+
+        print "Connecting to Vasttrafik and getting trip info"
+        self.vt.calculate_trip(self.dep, self.goal)
+        print "Download complete"
+        self.transfer_to_pepper(full_path)
+
+        self.display_on_tablet(full_file_name, 10)
 
         self.look_for_human()
 
