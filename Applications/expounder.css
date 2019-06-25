@@ -1,0 +1,27 @@
+[data-expounder],
+[data-expounder-c] {
+	text-decoration: none;
+	border-bottom: 1px dashed;
+	cursor: pointer;
+}
+
+@keyframes expoundedFadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+@keyframes expoundedFadeOut {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+[data-expounded] {
+	display: none;
+}
+[data-expounded].expounded-appear {
+	display: initial;
+	animation: expoundedFadeIn 1s;
+}
+[data-expounded].expounded-disappear {
+	display: initial;
+	animation: expoundedFadeOut 1s;
+}

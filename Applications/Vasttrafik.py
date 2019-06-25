@@ -20,7 +20,10 @@ class Vasttrafik:
         # Fields for data handling
         self.next_departure = None
         self.time_extracted = None
+        # Trip data
         self.trip = None
+        self.trip_start = None
+        self.trip_end = None
 
         self.html_data = None
         self.save_path = save_path
@@ -99,11 +102,100 @@ class Vasttrafik:
         :param end_station: End station of the trip. Default Prinsgatan
         :return:
         """
+        self.trip_start = start_station
+        self.trip_end = end_station
         start_id = self.client.get_stops_by_name(start_station)[0]['id']
         end_id = self.client.get_stops_by_name(end_station)[0]['id']
-        self.trip = self.client.calculate_trip_stations(start_id, end_id)
+        try:
+            self.trip = self.client.calculate_trip_stations(start_id, end_id)['TripList']['Trip']
+            self.create_trip_html()
+        except KeyError as e:
+            print e
+            self.trip = None
 
-    # Create next departure html
+    # Create trip html
+    def create_trip_html(self, name='trip'):
+        """
+        Create the web page displaying information about a trip
+        :param name: name of the output file
+        :return:
+        """
+        self.html_data = list()
+        self.add_html_data('<h2>From: %s To: %s</h2>' % (self.trip_start, self.trip_end))
+        for trip in self.trip:
+            start_time = trip['Leg'][0]['Origin'].get('rtTime', trip['Leg'][0]['Origin']['time'])
+            end_time = trip['Leg'][-1]['Destination'].get('rtTime', trip['Leg'][-1]['Destination']['time'])
+            self.add_collapsible_button(start_time, end_time)
+            self.add_trip_content_header()
+            for leg in trip['Leg']:
+                self.add_trip_leg(leg)
+            self.add_html_data('</table>')
+            self.add_html_data('</div>')
+        with open(os.path.dirname(os.path.abspath(__file__)) + '\\VasttrafikTemplates\\trip_script_field.txt', 'r') as script_field:
+            for l in script_field:
+                self.add_html_data(l)
+        self.write_html_file(name, 'html_template_trip.txt')
+
+    @staticmethod
+    def calculate_time_difference(t1, t2):
+        """
+        Calculates the time difference between two time strings on the format HH:MM
+        :param t1: First time mark
+        :param t2: Second time marke
+        :return: t1-t2 in minutes
+        """
+        diff = datetime.datetime.strptime(t2, '%H:%M') - datetime.datetime.strptime(t1, '%H:%M')
+        return int(diff.total_seconds()/60)
+
+    def add_collapsible_button(self, start_time, end_time):
+        """
+        Add a collapsible button to the table
+        :param start_time: Travelling start
+        :param end_time: Travelling end
+        :return:
+        """
+        diff = self.calculate_time_difference(start_time, end_time)
+        self.add_html_data('<button class="collapsible" style="font-size: 16px;co">%s-%s<br>Travelling time: %s minutes</button>' % (start_time, end_time, diff))
+
+    def add_trip_content_header(self):
+        """ Add the content header for the trip collapsible button. Content is a table"""
+        with open(os.path.dirname(os.path.abspath(__file__)) +'\\VasttrafikTemplates\\trip_content_header.txt', 'r') as header:
+            for l in header:
+                self.add_html_data(l)
+
+                # Create next departure html
+
+    def add_trip_leg(self, leg):
+        """
+        Add a leg of the total trip to the content table
+        :param leg: Contains information of the leg, from station to station.
+        :return:
+        """
+        front_c = leg.get('fgColor', '#ffffff')
+        back_c = leg.get('bgColor', '#ffffff')
+        name = leg.get('sname', '')
+        direction = leg.get('direction', 'Walk')
+        #if leg['type'] == 'WALK':
+        #    direction = 'WALK'
+
+        start_time = leg['Origin'].get('rtTime', leg['Origin']['time'])
+        start_location = leg['Origin']['name']
+        end_time = leg['Destination'].get('rtTime', leg['Destination']['time'])
+        end_location = leg['Destination']['name']
+        if start_location == end_location:
+            # Walk from platform to platform at station
+            return
+        self.add_html_data('<tr>')
+        self.add_html_data('<td align="center" style="color:%s;background-color:%s;">%s</td>' % (back_c, front_c, name))
+        self.add_html_data('<td >%s</td>' % direction)
+        self.add_html_data('<td >%s</td>' % start_location)
+        self.add_html_data('<td >%s&nbsp</td>' % start_time)
+        self.add_html_data('<td >%s</td>' % end_location)
+        self.add_html_data('<td >%s&nbsp</td>' % end_time)
+        self.add_html_data('<td >%s minutes</td>' % self.calculate_time_difference(start_time, end_time))
+        self.add_html_data('</tr>')
+
+    # Create departure html
     def create_departure_html(self, name='departure'):
         """
         Create the next departure data html page
@@ -126,7 +218,7 @@ class Vasttrafik:
         # End of full code
         self.add_html_data('</body>')
         self.add_html_data('</html>')
-        self.write_html_file(name)
+        self.write_html_file(name, 'html_template_departure.txt')
 
     def extract_departure_table_data(self):
         """
@@ -261,16 +353,16 @@ class Vasttrafik:
         """
         self.html_data.append('%s\n' % d.encode("utf-8", errors="ignore"))
 
-    def write_html_file(self, name):
+    def write_html_file(self, name, html_template):
         """
         Write the data of the field html_data to a specified output file with name NAME
         :param name: name of the output html file
+        :param html_template: template for which data should be appended
         :return:
         """
         with open(r'%s/%s.htm' % (self.save_path, name), 'w+') as output_file:
             # Write template
-
-            with open(os.path.dirname(os.path.abspath(__file__)) +'\\html_template.txt', 'r') as template:
+            with open(os.path.dirname(os.path.abspath(__file__)) +'\\VasttrafikTemplates\\%s' % html_template, 'r') as template:
                 output_file.writelines(template)
             # Write table data created by script
             for l in self.html_data:
