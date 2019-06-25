@@ -106,12 +106,12 @@ class Vasttrafik:
         self.trip_end = end_station
         start_id = self.client.get_stops_by_name(start_station)[0]['id']
         end_id = self.client.get_stops_by_name(end_station)[0]['id']
-        try:
-            self.trip = self.client.calculate_trip_stations(start_id, end_id)['TripList']['Trip']
-            self.create_trip_html()
-        except KeyError as e:
-            print e
-            self.trip = None
+        #try:
+        self.trip = self.client.calculate_trip_stations(start_id, end_id)['TripList']['Trip']
+        self.create_trip_html()
+        #except KeyError as e:
+         #   print e
+          #  self.trip = None
 
     # Create trip html
     def create_trip_html(self, name='trip'):
@@ -123,12 +123,20 @@ class Vasttrafik:
         self.html_data = list()
         self.add_html_data('<h2>From: %s To: %s</h2>' % (self.trip_start, self.trip_end))
         for trip in self.trip:
-            start_time = trip['Leg'][0]['Origin'].get('rtTime', trip['Leg'][0]['Origin']['time'])
-            end_time = trip['Leg'][-1]['Destination'].get('rtTime', trip['Leg'][-1]['Destination']['time'])
+            if isinstance(trip['Leg'], list):
+                start_time = trip['Leg'][0]['Origin'].get('rtTime', trip['Leg'][0]['Origin']['time'])
+                end_time = trip['Leg'][-1]['Destination'].get('rtTime', trip['Leg'][-1]['Destination']['time'])
+            else:
+                start_time = trip['Leg']['Origin'].get('rtTime', trip['Leg']['Origin']['time'])
+                end_time = trip['Leg']['Destination'].get('rtTime', trip['Leg']['Destination']['time'])
+
             self.add_collapsible_button(start_time, end_time)
             self.add_trip_content_header()
-            for leg in trip['Leg']:
-                self.add_trip_leg(leg)
+            if isinstance(trip['Leg'], list):
+                for leg in trip['Leg']:
+                    self.add_trip_leg(leg)
+            else:
+                self.add_trip_leg(trip['Leg'])
             self.add_html_data('</table>')
             self.add_html_data('</div>')
         with open(os.path.dirname(os.path.abspath(__file__)) + '\\VasttrafikTemplates\\trip_script_field.txt', 'r') as script_field:
@@ -384,7 +392,7 @@ if __name__ == '__main__':
     # v.extract_next_departure()
     html_name = 'departure'
     v.create_departure_html(html_name)
-    v.calculate_trip()
+    v.calculate_trip('Central station', 'Saltholmen')
     #ref_id = v.trip['TripList']['Trip'][0]['Leg'][1]['JourneyDetailRef']['ref']
     #apa = v.client.get_journey_details(ref_id)
     print 'for debug'
