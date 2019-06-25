@@ -12,7 +12,7 @@ import paramiko
 from scp import SCPClient
 from Applications.Vasttrafik import Vasttrafik
 
-IP = "192.168.1.104"
+IP = "192.168.1.101"
 
 
 class HumanGreeter(object):
@@ -75,9 +75,6 @@ class HumanGreeter(object):
             self.got_face = True
             print "Face detected"
             self.tts.say("Hello carbon-based lifeform")
-            # First Field = TimeStamp.
-            timeStamp = value[0]
-            print "TimeStamp is: " + str(timeStamp)
 
             self.rides_subscriber = self.memory.subscriber("next_ride")
             self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
@@ -99,16 +96,17 @@ class HumanGreeter(object):
         self.dialog.unsubscribe(self.name)
 
         file_name = 'live_test'
-        self.vt.create_departure_html(file_name)
-        full_path = os.path.join(self.html_path, file_name)
+        file_ending = '.htm'
+        full_file_name = file_name + file_ending
+        full_path = os.path.join(self.html_path, full_file_name)
 
+        print "Connecting to Vasttrafik and getting next rides"
+        self.vt.create_departure_html(file_name)
         self.transfer_to_pepper(full_path)
 
-        self.tablet.enableWifi()
-        ip = self.tablet.robotIp()
-        self.tablet.showWebview('http://' + ip + '/apps/vasttrafik/' + file_name + '.htm')
-        time.sleep(50)
-        self.tablet.hideWebview()
+        self.display_on_tablet(full_file_name)
+
+        self.tts.say("Here you go")
 
         self.look_for_human()
 
@@ -142,6 +140,14 @@ class HumanGreeter(object):
 
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
+
+    def display_on_tablet(self, file_name):
+        self.tablet.enableWifi()
+        ip = self.tablet.robotIp()
+        remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
+        self.tablet.showWebview(remote_path)
+        time.sleep(10)
+        self.tablet.hideWebview()
 
     def shutoff(self):
         """
