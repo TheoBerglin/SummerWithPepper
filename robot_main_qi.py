@@ -1,12 +1,18 @@
 #! /usr/bin/env python
 # -*- encoding: UTF-8 -*-
 
-"""Example: A Simple class to get & read FaceDetected Events"""
+"""Main class to handle the Vasttrafik application"""
 
 import qi
 import time
 import sys
 import argparse
+import os
+import paramiko
+from scp import SCPClient
+from Applications.Vasttrafik import Vasttrafik
+
+IP = "192.168.1.104"
 
 
 class HumanGreeter(object):
@@ -35,6 +41,10 @@ class HumanGreeter(object):
         self.tablet = session.service("ALTabletService")
         self.face_detection = session.service("ALFaceDetection")
         self.face_detection.subscribe(self.name)
+
+        # Create a Vasttrafik object for handling API calls
+        self.html_path = "C:\Users\elibada\SummerWithPepper\Applications"
+        self.vt = Vasttrafik(self.html_path)
 
         self.face_id = 0
         self.got_face = False
@@ -88,10 +98,15 @@ class HumanGreeter(object):
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
 
+        file_name = 'live_test'
+        self.vt.create_departure_html(file_name)
+        full_path = os.path.join(self.html_path, file_name)
+
+        self.transfer_to_pepper(full_path)
+
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
-        file_name = 'test.html'
-        self.tablet.showWebview('http://' + ip + '/apps/boot-config/' + file_name)
+        self.tablet.showWebview('http://' + ip + '/apps/vasttrafik/' + file_name + '.htm')
         time.sleep(50)
         self.tablet.hideWebview()
 
@@ -113,6 +128,20 @@ class HumanGreeter(object):
         self.dialog.unsubscribe(self.name)
 
         self.look_for_human()
+
+    def transfer_to_pepper(self, file_path):
+        print "Transferring file to Pepper"
+        paramiko.util.log_to_file("filename.log")
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(IP, username="nao", password="ericsson")
+
+        # SCPCLient takes a paramiko transport as an argument
+        scp = SCPClient(ssh.get_transport())
+
+        scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
+        print "Transfer complete"
 
     def shutoff(self):
         """
@@ -152,8 +181,8 @@ class HumanGreeter(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--ip", type=str, default="192.168.1.104",
-                        help="Robot IP address. On robot or Local Naoqi: use '192.168.1.104'.")
+    parser.add_argument("--ip", type=str, default=IP,
+                        help="Robot IP address. On robot or Local Naoqi: use '192.168.1.101'.")
     parser.add_argument("--port", type=int, default=9559,
                         help="Naoqi port number")
 
