@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 from APIConnections.VasttrafikAPI import VasttrafikClient
 import datetime
 
@@ -267,7 +269,8 @@ class Vasttrafik:
         """
         with open(r'%s/%s.htm' % (self.save_path, name), 'w+') as output_file:
             # Write template
-            with open('html_template.txt', 'r') as template:
+
+            with open(os.path.dirname(os.path.abspath(__file__)) +'\\html_template.txt', 'r') as template:
                 output_file.writelines(template)
             # Write table data created by script
             for l in self.html_data:
