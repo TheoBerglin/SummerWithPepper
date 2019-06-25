@@ -9,6 +9,7 @@ import sys
 import argparse
 import os
 import paramiko
+import threading
 from scp import SCPClient
 from Applications.Vasttrafik import Vasttrafik
 
@@ -102,11 +103,14 @@ class HumanGreeter(object):
 
         print "Connecting to Vasttrafik and getting next rides"
         self.vt.create_departure_html(file_name)
+        print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        self.display_on_tablet(full_file_name)
-
-        self.tts.say("Here you go")
+        self.display_on_tablet(full_file_name, 10)
+        #p = qi.Promise()
+        #f = p.future()
+        #x = threading.Thread(target=self.display_on_tablet, args=(full_file_name,))
+        #x.start()
 
         self.look_for_human()
 
@@ -141,12 +145,13 @@ class HumanGreeter(object):
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
 
-    def display_on_tablet(self, file_name):
+    def display_on_tablet(self, file_name, sleep_time):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
         self.tablet.showWebview(remote_path)
-        time.sleep(10)
+        self.tts.say("Here you go")
+        time.sleep(sleep_time)
         self.tablet.hideWebview()
 
     def shutoff(self):
