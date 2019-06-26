@@ -29,11 +29,13 @@ class HumanGreeter(object):
         app.start()
         session = app.session
 
+        # Set speech recognition language to swedish (in order for Pepper to understand stations)
         self.name = "HumanGreeter"
-        #self.lang = session.service("ALSpeechRecognition")
-        #self.lang.pause(True)
-        #self.lang.setLanguage('Swedish')
-        #self.lang.pause(False)
+        self.lang = session.service("ALSpeechRecognition")
+        self.lang.pause(True)
+        self.lang.setLanguage('Swedish')
+        self.lang.pause(False)
+        print "Currently set language is %s" % self.lang.getLanguage()
 
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
@@ -54,6 +56,7 @@ class HumanGreeter(object):
 
         self.face_id = 0
         self.got_face = False
+
         self.look_for_human()
 
     def look_for_human(self):
@@ -147,7 +150,8 @@ class HumanGreeter(object):
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        self.display_on_tablet(full_file_name, 10)
+        self.display_on_tablet(full_file_name)
+        time.sleep(3)
 
         self.look_for_human()
 
