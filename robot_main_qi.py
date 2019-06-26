@@ -31,7 +31,9 @@ class HumanGreeter(object):
 
         self.name = "HumanGreeter"
         #self.lang = session.service("ALSpeechRecognition")
+        #self.lang.pause(True)
         #self.lang.setLanguage('Swedish')
+        #self.lang.pause(False)
 
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
@@ -56,6 +58,7 @@ class HumanGreeter(object):
 
     def look_for_human(self):
         self.tts.say("Im searching for human life")
+        self.stop_event = True
         #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
@@ -109,11 +112,10 @@ class HumanGreeter(object):
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        self.display_on_tablet(full_file_name, 10)
-        #p = qi.Promise()
-        #f = p.future()
-        #x = threading.Thread(target=self.display_on_tablet, args=(full_file_name,))
-        #x.start()
+        self.stop_event = False
+        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
+        t.start()
+        time.sleep(3)
 
         self.look_for_human()
 
@@ -160,14 +162,18 @@ class HumanGreeter(object):
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
 
-    def display_on_tablet(self, file_name, sleep_time):
+    def display_on_tablet(self, file_name):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
         self.tablet.showWebview(remote_path)
         self.tts.say("Here you go")
-        time.sleep(sleep_time)
-        self.tablet.hideWebview()
+        while True:
+            print('thread running')
+            if self.stop_event:
+                print "Stopping tablet viewer"
+                self.tablet.hideWebview()
+                break
 
     def shutoff(self):
         """
@@ -189,6 +195,11 @@ class HumanGreeter(object):
             self.face_detection.unsubscribe(self.name)
             print "Unsubscribed to face"
         except RuntimeError:
+            pass
+        try:
+            self.stop_event = True
+            print "Tabletview stopped"
+        except:
             pass
 
     def run(self):
