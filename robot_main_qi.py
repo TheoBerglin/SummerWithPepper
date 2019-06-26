@@ -58,7 +58,8 @@ class HumanGreeter(object):
 
     def look_for_human(self):
         self.tts.say("Im searching for human life")
-        self.stop_event = True
+        #self.hide_tablet = True
+        self.tablet.hideWebview()
         #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
@@ -112,9 +113,11 @@ class HumanGreeter(object):
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        self.stop_event = False
-        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
-        t.start()
+        #self.hide_tablet = False
+        #t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
+        #t.start()
+        #time.sleep(3)
+        self.display_on_tablet(full_file_name)
         time.sleep(3)
 
         self.look_for_human()
@@ -168,12 +171,12 @@ class HumanGreeter(object):
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
         self.tablet.showWebview(remote_path)
         self.tts.say("Here you go")
-        while True:
-            print('thread running')
-            if self.stop_event:
-                print "Stopping tablet viewer"
-                self.tablet.hideWebview()
-                break
+        #while True:
+        #    print('thread running')
+        #    if self.hide_tablet:
+        #        print "Stopping tablet viewer"
+        #        self.tablet.hideWebview()
+        #        break
 
     def shutoff(self):
         """
@@ -197,7 +200,8 @@ class HumanGreeter(object):
         except RuntimeError:
             pass
         try:
-            self.stop_event = True
+            #self.hide_tablet = True
+            self.tablet.hideWebview()
             print "Tabletview stopped"
         except:
             pass
