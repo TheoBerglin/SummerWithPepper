@@ -61,8 +61,8 @@ class HumanGreeter(object):
 
     def look_for_human(self):
         self.tts.say("Im searching for human life")
-        #self.hide_tablet = True
-        self.tablet.hideWebview()
+        self.hide_tablet = True
+        #self.tablet.hideWebview()
         #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
@@ -116,12 +116,12 @@ class HumanGreeter(object):
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        #self.hide_tablet = False
-        #t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
-        #t.start()
+        self.hide_tablet = False
+        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
+        t.start()
+        time.sleep(15)
+        #self.display_on_tablet(full_file_name)
         #time.sleep(3)
-        self.display_on_tablet(full_file_name)
-        time.sleep(3)
 
         self.look_for_human()
 
@@ -173,14 +173,24 @@ class HumanGreeter(object):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
-        self.tablet.showWebview(remote_path)
         self.tts.say("Here you go")
-        #while True:
-        #    print('thread running')
-        #    if self.hide_tablet:
-        #        print "Stopping tablet viewer"
-        #        self.tablet.hideWebview()
-        #        break
+        while True:
+            self.tablet.showWebview(remote_path)
+            time.sleep(3)
+            file_name = 'live_test'
+            file_ending = '.htm'
+            full_file_name = file_name + file_ending
+            full_path = os.path.join(self.html_path, full_file_name)
+
+            print "Connecting to Vasttrafik and getting next rides"
+            self.vt.create_departure_html(file_name)
+            print "Download complete"
+            self.transfer_to_pepper(full_path)
+            #print('thread running')
+            if self.hide_tablet:
+                print "Stopping tablet viewer"
+                self.tablet.hideWebview()
+                break
 
     def shutoff(self):
         """
