@@ -13,7 +13,7 @@ import threading
 from scp import SCPClient
 from Applications.Vasttrafik import Vasttrafik
 
-IP = "192.168.1.101"
+IP = "192.168.1.100"
 
 
 class HumanGreeter(object):
@@ -62,7 +62,7 @@ class HumanGreeter(object):
     def look_for_human(self):
         self.tts.say("Im searching for human life")
         self.hide_tablet = True
-        #self.tablet.hideWebview()
+        self.tablet.hideWebview()
         #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
@@ -95,7 +95,7 @@ class HumanGreeter(object):
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
             self.dialog.subscribe(self.name)
             self.dialog.activateTopic(self.topic)
-            self.display_on_tablet('introduction.html')
+            self.display_on_tablet('introduction.html', False)
 
     def next_ride(self, *_args):
         """
@@ -103,6 +103,7 @@ class HumanGreeter(object):
         """
         print "Next ride callback started"
 
+        self.tablet.hideWebview()
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
@@ -118,11 +119,9 @@ class HumanGreeter(object):
         self.transfer_to_pepper(full_path)
 
         self.hide_tablet = False
-        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, ))
+        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
         t.start()
-        time.sleep(15)
-        #self.display_on_tablet(full_file_name)
-        #time.sleep(3)
+        time.sleep(10)
 
         self.look_for_human()
 
@@ -137,6 +136,7 @@ class HumanGreeter(object):
         print self.goal
         print self.dep
 
+        self.tablet.hideWebview()
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
@@ -151,8 +151,8 @@ class HumanGreeter(object):
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
-        self.display_on_tablet(full_file_name)
-        time.sleep(3)
+        self.display_on_tablet(full_file_name, False)
+        time.sleep(10)
 
         self.look_for_human()
 
@@ -170,28 +170,28 @@ class HumanGreeter(object):
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
 
-    def display_on_tablet(self, file_name):
+    def display_on_tablet(self, file_name, update=True):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
-        self.tts.say("Here you go")
-        while True:
-            self.tablet.showWebview(remote_path)
-            time.sleep(3)
-            file_name = 'live_test'
-            file_ending = '.htm'
-            full_file_name = file_name + file_ending
-            full_path = os.path.join(self.html_path, full_file_name)
+        if update:
+            self.tts.say("Here you go")
+            while True:
+                self.tablet.showWebview(remote_path)
+                time.sleep(3)  # Update view with new data every 3 seconds
+                full_path = os.path.join(self.html_path, file_name)
 
-            print "Connecting to Vasttrafik and getting next rides"
-            self.vt.create_departure_html(file_name)
-            print "Download complete"
-            self.transfer_to_pepper(full_path)
-            #print('thread running')
-            if self.hide_tablet:
-                print "Stopping tablet viewer"
-                self.tablet.hideWebview()
-                break
+                print "Connecting to Vasttrafik and getting next rides"
+                self.vt.create_departure_html(file_name)
+                print "Download complete"
+
+                self.transfer_to_pepper(full_path)
+                if self.hide_tablet:
+                    print "Stopping tablet viewer"
+                    self.tablet.hideWebview()
+                    break
+        else:
+            self.tablet.showWebview(remote_path)
 
     def shutoff(self):
         """
