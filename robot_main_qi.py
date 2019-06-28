@@ -60,9 +60,9 @@ class HumanGreeter(object):
         self.look_for_human()
 
     def look_for_human(self):
-        self.tts.say("Im searching for human life")
         self.hide_tablet = True
         self.tablet.hideWebview()
+        self.tts.say("Im searching for human life")
         #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
@@ -111,12 +111,6 @@ class HumanGreeter(object):
         file_name = 'live_test'
         file_ending = '.htm'
         full_file_name = file_name + file_ending
-        full_path = os.path.join(self.html_path, full_file_name)
-
-        print "Connecting to Vasttrafik and getting next rides"
-        self.vt.create_departure_html(file_name)
-        print "Download complete"
-        self.transfer_to_pepper(full_path)
 
         self.hide_tablet = False
         t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
@@ -170,22 +164,24 @@ class HumanGreeter(object):
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
 
-    def display_on_tablet(self, file_name, update=True):
+    def display_on_tablet(self, full_file_name, update=True):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
-        remote_path = 'http://' + ip + '/apps/vasttrafik/' + file_name
+        remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
         if update:
-            self.tts.say("Here you go")
             while True:
-                self.tablet.showWebview(remote_path)
-                time.sleep(3)  # Update view with new data every 3 seconds
-                full_path = os.path.join(self.html_path, file_name)
+                full_path = os.path.join(self.html_path, full_file_name)
+
+                file_name = full_file_name.split('.')[0]
 
                 print "Connecting to Vasttrafik and getting next rides"
                 self.vt.create_departure_html(file_name)
                 print "Download complete"
 
                 self.transfer_to_pepper(full_path)
+                self.tablet.showWebview(remote_path)
+
+                time.sleep(3)  # Update view with new data every 3 seconds
                 if self.hide_tablet:
                     print "Stopping tablet viewer"
                     self.tablet.hideWebview()
