@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Pepper Form</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script>
+	var session;
+
+	try {
+	  QiSession( function (s) {
+		console.log('connected!');
+		session = s;
+		// now that we are connected, we can use the buttons on the page
+		$('button').prop('disabled', false);
+		/*s.service('ALMemory').then(function (memory) {
+		  memory.subscriber('TouchChanged').then(function (subscriber) {
+			subscriber.signal.connect(changeTitle);
+		  });
+		});*/
+	  });
+	} catch (err) {
+	  console.log("Error when initializing QiSession: " + err.message);
+	  console.log("Make sure you load this page from the robots server.")
+	}
+	
+	function getInitialText() {
+		session.service('ALMemory').then(function (memory) {
+		/*var startStation = "Lindholmen"
+		var stopStation = "Johanneberg"*/
+		var startStation = memory.getData("depStop")
+		var stopStation = memory.getData("arrStop")
+			
+        document.getElementById("correctHeader").innerHTML = "Was it correct to go from " + startStation + " to " + stopStation + "?";
+		}
+	}
+	</script>
+
+</head>
+<body onLoad=getInitialText()>
+  <h2 id="correctHeader" href = test.html>Was it correct Adam? <h2>
+
+  <input type="image" id="yesButton" src="images/yes.jpg" alt="YES" width="200" height="120" />
+  <input type="image" id="noButton" src="images/no.jpg" alt="NO" width="200" height="120" />
+  <script src="/libs/qimessaging/2/qimessaging.js"></script>
+	<script src="js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="js/script_vasttrafik_correct.js"></script>
+</body>
+</html>

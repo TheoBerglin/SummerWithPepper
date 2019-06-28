@@ -396,4 +396,4 @@ if __name__ == '__main__':
     #ref_id = v.trip['TripList']['Trip'][0]['Leg'][1]['JourneyDetailRef']['ref']
     #apa = v.client.get_journey_details(ref_id)
     print 'for debug'
-    # sorted(apa, key=lambda x: (int(x['sname'])))
+

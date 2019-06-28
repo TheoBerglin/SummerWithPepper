@@ -96,12 +96,16 @@ class HumanGreeter(object):
             self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
             self.trip_subscriber = self.memory.subscriber("trip")
             self.trip_id = self.trip_subscriber.signal.connect(self.trip)
-
+            self.corr_trip_subscriber = self.memory.subscriber("corr_trip")
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
             self.dialog.activateTopic(self.topic)
             self.dialog.subscribe(self.name)
 
             self.display_on_tablet('introduction.html', False)
+            self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.correct_trip)
+
+    def correct_trip(self, *_args):
+        self.display_on_tablet('correct_trip_vasttrafik.html', False)
 
     def next_ride(self, *_args):
         """
@@ -135,7 +139,6 @@ class HumanGreeter(object):
         self.dep = self.memory.getData("depStop")
         print self.goal
         print self.dep
-
         self.tablet.hideWebview()
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
