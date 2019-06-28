@@ -54,6 +54,8 @@ class HumanGreeter(object):
         self.html_path =  os.path.dirname(os.path.abspath(__file__)) + r'\Applications'
         self.vt = Vasttrafik(self.html_path)
 
+        self.t = None
+
         self.face_id = 0
         self.got_face = False
 
@@ -61,6 +63,9 @@ class HumanGreeter(object):
 
     def look_for_human(self):
         self.hide_tablet = True
+        if self.t is not None:
+            print "Main waiting for thread to die"
+            self.t.join()
         self.tablet.hideWebview()
         self.tts.say("Im searching for human life")
         #self.dialog_running = False
@@ -93,8 +98,9 @@ class HumanGreeter(object):
             self.trip_id = self.trip_subscriber.signal.connect(self.trip)
 
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
-            self.dialog.subscribe(self.name)
             self.dialog.activateTopic(self.topic)
+            self.dialog.subscribe(self.name)
+
             self.display_on_tablet('introduction.html', False)
 
     def next_ride(self, *_args):
@@ -113,9 +119,9 @@ class HumanGreeter(object):
         full_file_name = file_name + file_ending
 
         self.hide_tablet = False
-        t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
-        t.start()
-        time.sleep(10)
+        self.t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
+        self.t.start()
+        time.sleep(5)
 
         self.look_for_human()
 
@@ -181,9 +187,9 @@ class HumanGreeter(object):
                 self.transfer_to_pepper(full_path)
                 self.tablet.showWebview(remote_path)
 
-                time.sleep(3)  # Update view with new data every 3 seconds
+                time.sleep(5)  # Update view with new data every 3 seconds
                 if self.hide_tablet:
-                    print "Stopping tablet viewer"
+                    print "Killing thread and hiding tablet"
                     self.tablet.hideWebview()
                     break
         else:
