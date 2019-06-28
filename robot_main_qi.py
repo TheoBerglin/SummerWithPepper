@@ -51,7 +51,7 @@ class HumanGreeter(object):
         self.face_detection.subscribe(self.name)
 
         # Create a Vasttrafik object for handling API calls
-        self.html_path = "C:\Users\elibada\SummerWithPepper\Applications"
+        self.html_path =  os.path.dirname(os.path.abspath(__file__)) + r'\Applications'
         self.vt = Vasttrafik(self.html_path)
 
         self.face_id = 0
@@ -95,6 +95,7 @@ class HumanGreeter(object):
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
             self.dialog.subscribe(self.name)
             self.dialog.activateTopic(self.topic)
+            self.display_on_tablet('introduction.html')
 
     def next_ride(self, *_args):
         """
