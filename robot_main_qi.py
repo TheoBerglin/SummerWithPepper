@@ -13,7 +13,7 @@ import threading
 from scp import SCPClient
 from Applications.Vasttrafik import Vasttrafik
 
-IP = "192.168.1.100"
+IP = "192.168.1.102"
 
 
 class HumanGreeter(object):
@@ -97,15 +97,22 @@ class HumanGreeter(object):
             self.trip_subscriber = self.memory.subscriber("trip")
             self.trip_id = self.trip_subscriber.signal.connect(self.trip)
             self.corr_trip_subscriber = self.memory.subscriber("corr_trip")
+            self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.correct_trip)
+            self.trip_input_subscriber = self.memory.subscriber("trip_input")
+            self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
+
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
             self.dialog.activateTopic(self.topic)
             self.dialog.subscribe(self.name)
 
             self.display_on_tablet('introduction.html', False)
-            self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.correct_trip)
+            #self.show_trip_input()
 
     def correct_trip(self, *_args):
         self.display_on_tablet('correct_trip_vasttrafik.html', False)
+
+    def show_trip_input(self, *_args):
+        self.display_on_tablet('trip_input.html', False)
 
     def next_ride(self, *_args):
         """
