@@ -118,7 +118,7 @@ class HumanGreeter(object):
         self.dialog.unloadTopic(self.topic)
         self.dialog.unsubscribe(self.name)
 
-        file_name = 'live_test'
+        file_name = 'next_ride'
         file_ending = '.htm'
         full_file_name = file_name + file_ending
 
@@ -161,7 +161,6 @@ class HumanGreeter(object):
 
     def transfer_to_pepper(self, file_path):
         print "Transferring file to Pepper"
-        paramiko.util.log_to_file("filename.log")
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
