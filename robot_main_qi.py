@@ -109,13 +109,13 @@ class HumanGreeter(object):
 
     def show_correct_trip(self, *_args):
         """
-        Callback for when corr_trip is set
+        Callback for when corr_trip_view is set
         """
         self.display_on_tablet('correct_trip_vasttrafik.html', False)
 
     def show_trip_input(self, *_args):
         """
-        Callback for when trip_input is set
+        Callback for when trip_input_view is set
         """
         self.display_on_tablet('trip_input.html', False)
 
@@ -148,10 +148,10 @@ class HumanGreeter(object):
         print "Trip callback started"
         self.tts.say("Fetching trip data")
 
-        self.goal = self.memory.getData("arr_stop")
-        self.dep = self.memory.getData("dep_stop")
-        print "From: %s" % self.dep
-        print "To: %s" % self.goal
+        goal = self.memory.getData("arr_stop")
+        dep = self.memory.getData("dep_stop")
+        print "From: %s" % dep
+        print "To: %s" % goal
         self.tablet.hideWebview()
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)
@@ -163,7 +163,7 @@ class HumanGreeter(object):
         full_path = os.path.join(self.html_path, full_file_name)
 
         print "Connecting to Vasttrafik and getting trip info"
-        self.vt.calculate_trip(self.dep, self.goal)
+        self.vt.calculate_trip(dep, goal)
         print "Download complete"
         self.transfer_to_pepper(full_path)
 
