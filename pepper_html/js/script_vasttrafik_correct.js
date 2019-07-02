@@ -31,7 +31,7 @@ function changeTitle(data) {
 
 function noButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('potato', 1);
+		memory.raiseEvent('incorrect_trip', 1);
   }, function (error) {
     console.log(error);
   })
@@ -39,7 +39,7 @@ function noButton() {
 
 function yesButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('palsternacka', 1);
+		memory.raiseEvent('correct_trip', 1);
   }, function (error) {
     console.log(error);
   })

@@ -96,9 +96,9 @@ class HumanGreeter(object):
             self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
             self.trip_subscriber = self.memory.subscriber("trip")
             self.trip_id = self.trip_subscriber.signal.connect(self.trip)
-            self.corr_trip_subscriber = self.memory.subscriber("corr_trip")
-            self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.correct_trip)
-            self.trip_input_subscriber = self.memory.subscriber("trip_input")
+            self.corr_trip_subscriber = self.memory.subscriber("corr_trip_view")
+            self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.show_correct_trip)
+            self.trip_input_subscriber = self.memory.subscriber("trip_input_view")
             self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
 
             self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
@@ -107,7 +107,7 @@ class HumanGreeter(object):
 
             self.display_on_tablet('introduction.html', False)
 
-    def correct_trip(self, *_args):
+    def show_correct_trip(self, *_args):
         """
         Callback for when corr_trip is set
         """
@@ -146,11 +146,12 @@ class HumanGreeter(object):
         Callback for when trip is set
         """
         print "Trip callback started"
+        self.tts.say("Fetching trip data")
 
-        self.goal = self.memory.getData("arrStop")
-        self.dep = self.memory.getData("depStop")
-        print self.goal
-        print self.dep
+        self.goal = self.memory.getData("arr_stop")
+        self.dep = self.memory.getData("dep_stop")
+        print "From: %s" % self.dep
+        print "To: %s" % self.goal
         self.tablet.hideWebview()
         self.dialog.deactivateTopic(self.topic)
         self.dialog.unloadTopic(self.topic)

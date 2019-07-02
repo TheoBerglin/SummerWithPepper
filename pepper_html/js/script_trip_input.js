@@ -30,8 +30,8 @@ function goButton() {
 	session.service('ALMemory').then(function (memory) {
 		var dep = document.getElementById('departure').value;
 		var arr = document.getElementById('arrival').value;
-		memory.insertData('depStop', dep);
-		memory.insertData('arrStop', arr);
+		memory.insertData('dep_stop', dep);
+		memory.insertData('arr_stop', arr);
 		memory.raiseEvent('trip', 1);
   }, function (error) {
     console.log(error);
