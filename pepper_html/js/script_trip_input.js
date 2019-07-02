@@ -27,7 +27,6 @@ function changeTitle(data) {
 }
 
 function goButton() {
-	console.log("Entered button func");
 	session.service('ALMemory').then(function (memory) {
 		var dep = document.getElementById('departure').value;
 		var arr = document.getElementById('arrival').value;

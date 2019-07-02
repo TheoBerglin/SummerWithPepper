@@ -106,12 +106,17 @@ class HumanGreeter(object):
             self.dialog.subscribe(self.name)
 
             self.display_on_tablet('introduction.html', False)
-            #self.show_trip_input()
 
     def correct_trip(self, *_args):
+        """
+        Callback for when corr_trip is set
+        """
         self.display_on_tablet('correct_trip_vasttrafik.html', False)
 
     def show_trip_input(self, *_args):
+        """
+        Callback for when trip_input is set
+        """
         self.display_on_tablet('trip_input.html', False)
 
     def next_ride(self, *_args):
