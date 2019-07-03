@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- encoding: UTF-8 -*-
 
-"""Main class to handle the Vasttrafik application"""
-
 import time
 import os
 import paramiko
@@ -15,20 +13,18 @@ IP = ''
 
 class VasttrafikModule(object):
     """
-    A simple class to react to face detection events.
+    A module to handle interaction between the robot and the vasttrafik API.
     """
 
-    def __init__(self, app, name, pepper_IP):
+    def __init__(self, app, name, pepper_ip):
         """
-        Initialisation of qi framework and event detection.
+        Initialisation of module and event detection.
         """
         super(VasttrafikModule, self).__init__()
         self.name = name
         global IP
-        IP = pepper_IP
+        IP = pepper_ip
 
-        #self.app = app
-        #self.app.start()
         session = app.session
 
         # Set speech recognition language to swedish (in order for Pepper to understand stations)
@@ -40,7 +36,7 @@ class VasttrafikModule(object):
 
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
-        # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
+        # Get the services ALTextToSpeech, ALDialog, ALTabletService.
         self.tts = session.service("ALTextToSpeech")
         #self.motion = session.service("ALMotion")
         self.dialog = session.service("ALDialog")
@@ -201,5 +197,4 @@ class VasttrafikModule(object):
             print "Tabletview stopped"
         except:
             pass
-        #self.app.stop()
 
