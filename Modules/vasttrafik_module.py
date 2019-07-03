@@ -147,6 +147,7 @@ class VasttrafikModule(object):
 
         scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
         print "Transfer complete"
+        os.remove(file_path)  # Remove file after transfer
 
     def display_on_tablet(self, full_file_name, update=True):
         self.tablet.enableWifi()
