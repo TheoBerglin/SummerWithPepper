@@ -9,7 +9,7 @@ IP = "192.168.1.102"
 
 class HumanGreeter(object):
     """
-    A simple class to react to face detection events.
+    A class to react to face detection events and greet the user.
     """
 
     def __init__(self, app, name):
@@ -44,7 +44,6 @@ class HumanGreeter(object):
     def look_for_human(self):
         self.tablet.hideWebview()
         self.tts.say("Im searching for human life")
-        #self.dialog_running = False
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
 
@@ -58,29 +57,30 @@ class HumanGreeter(object):
         elif not self.got_face:  # only speak the first time a face appears
             self.got_face = True
             print "Face detected"
+            self.display_on_tablet('introduction.html')
+
             self.tts.say("Hello carbon-based lifeform")
 
             self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
             self.dialog.activateTopic(self.topic)
             self.dialog.subscribe(self.name)
 
-            #---------- Subscribe to apps/modules here ------------
-            self.vt_subscriber = self.memory.subscriber("vt")
+            # ---------- Subscribe to apps/modules here ------------
+            self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
             self.vt_id = self.vt_subscriber.signal.connect(self.vasttrafik_module)
-
-            self.display_on_tablet('introduction.html')
 
     def vasttrafik_module(self, *_args):
         print "Starting vt module"
         app_name = "VasttrafikModule"
-        self.session.service(app_name)  <----------------- testa detta
         try:
-            vt_mod = VasttrafikModule(self.app, app_name)
+            vt_mod = VasttrafikModule(self.app, app_name, IP)
             self.session.registerService(app_name, vt_mod)
+            print "Vasttrafik Module registered"
         except RuntimeError:
             print "Already registered"
 
-        self.session.service(app_name).run()
+        vt_sess = self.session.service(app_name)
+        vt_sess.run()
         #self.look_for_human()
 
     def display_on_tablet(self, full_file_name):

@@ -10,7 +10,7 @@ import threading
 from scp import SCPClient
 from Applications.Vasttrafik import Vasttrafik
 
-IP = "192.168.1.102"
+IP = ''
 
 
 class VasttrafikModule(object):
@@ -18,12 +18,15 @@ class VasttrafikModule(object):
     A simple class to react to face detection events.
     """
 
-    def __init__(self, app, name):
+    def __init__(self, app, name, pepper_IP):
         """
         Initialisation of qi framework and event detection.
         """
         super(VasttrafikModule, self).__init__()
         self.name = name
+        global IP
+        IP = pepper_IP
+
         #self.app = app
         #self.app.start()
         session = app.session
@@ -45,7 +48,7 @@ class VasttrafikModule(object):
         self.tablet = session.service("ALTabletService")
 
         # Create a Vasttrafik object for handling API calls
-        self.html_path = os.path.dirname(os.path.abspath(__file__)) + r'\Applications'
+        self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
         self.vt = Vasttrafik(self.html_path)
 
         self.t = None
