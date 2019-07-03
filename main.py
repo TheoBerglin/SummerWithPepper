@@ -2,8 +2,6 @@ import qi
 import time
 import sys
 import argparse
-import os
-from Applications.Vasttrafik import Vasttrafik
 from Modules.vasttrafik_module import VasttrafikModule
 
 IP = "192.168.1.102"
@@ -37,10 +35,6 @@ class HumanGreeter(object):
         self.tablet = self.session.service("ALTabletService")
         self.face_detection = self.session.service("ALFaceDetection")
         self.face_detection.subscribe(self.name)
-
-        # Create a Vasttrafik object for handling API calls
-        self.html_path =  os.path.dirname(os.path.abspath(__file__)) + r'\Applications'
-        self.vt = Vasttrafik(self.html_path)
 
         self.face_id = 0
         self.got_face = False

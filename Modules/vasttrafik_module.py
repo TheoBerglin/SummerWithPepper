@@ -3,10 +3,7 @@
 
 """Main class to handle the Vasttrafik application"""
 
-import qi
 import time
-import sys
-import argparse
 import os
 import paramiko
 import threading
@@ -40,16 +37,12 @@ class VasttrafikModule(object):
 
         # Get the service ALMemory.
         self.memory = session.service("ALMemory")
-        # Subscribe to FaceDetected event
-        self.face_subscriber = self.memory.subscriber("FaceDetected")
         # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
         self.tts = session.service("ALTextToSpeech")
         #self.motion = session.service("ALMotion")
         self.dialog = session.service("ALDialog")
         self.dialog.setLanguage("English")
         self.tablet = session.service("ALTabletService")
-        self.face_detection = session.service("ALFaceDetection")
-        self.face_detection.subscribe(self.name)
 
         # Create a Vasttrafik object for handling API calls
         self.html_path = os.path.dirname(os.path.abspath(__file__)) + r'\Applications'
@@ -145,7 +138,7 @@ class VasttrafikModule(object):
 
     def transfer_to_pepper(self, file_path):
         print "Transferring file to Pepper"
-        ssh = paramiko.SSHClient()l
+        ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(IP, username="nao", password="ericsson")
@@ -197,12 +190,6 @@ class VasttrafikModule(object):
         except AttributeError:
             pass
         try:
-            self.face_subscriber.signal.disconnect(self.face_id)
-            self.face_detection.unsubscribe(self.name)
-            print "Unsubscribed to face"
-        except RuntimeError:
-            pass
-        try:
             self.hide_tablet = True
             if self.t is not None:
                 print "Main waiting for thread to die"
@@ -212,21 +199,4 @@ class VasttrafikModule(object):
         except:
             pass
         #self.app.stop()
-
-
-    #def run(self):
-    #    """
-    #    Loop on, wait for events until manual interruption.
-    #    """
-    #    print "Starting Vasttrafik Module"
-    #    try:
-    #        while True:
-    #            time.sleep(1)
-    #    except KeyboardInterrupt:
-    #        print "Interrupted by user, stopping VasttrafikModule"
-    #        self.shutoff()
-    #        #sys.exit(0)
-
-
-
 
