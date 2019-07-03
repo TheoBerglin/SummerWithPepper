@@ -4,7 +4,7 @@ import sys
 import argparse
 import os
 from Applications.Vasttrafik import Vasttrafik
-from vasttrafik_module_new import VasttrafikModule
+from Modules.vasttrafik_module import VasttrafikModule
 
 IP = "192.168.1.102"
 
