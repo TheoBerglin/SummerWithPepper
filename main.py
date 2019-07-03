@@ -2,6 +2,7 @@ import qi
 import time
 import sys
 import argparse
+import math
 from Modules.vasttrafik_module import VasttrafikModule
 
 IP = "192.168.1.102"
@@ -29,19 +30,29 @@ class HumanGreeter(object):
         self.face_subscriber = self.memory.subscriber("FaceDetected")
         # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
         self.tts = self.session.service("ALTextToSpeech")
-        #self.motion = session.service("ALMotion")
+        self.motion = self.session.service("ALMotion")
+        self.motion.wakeUp()  # Must run command in order for Pepper to rotate if not in Auto life
         self.dialog = self.session.service("ALDialog")
         self.dialog.setLanguage("English")
         self.tablet = self.session.service("ALTabletService")
         self.face_detection = self.session.service("ALFaceDetection")
         self.face_detection.subscribe(self.name)
 
+        # ModuleFinished should be raised in each module upon shutoff.
+        self.module_finished_subscriber = self.memory.subscriber("ModuleFinished")
+        # Pepper will rotate to find new person
+        self.module_finished_subscriber.signal.connect(self.rotate)
+
         self.face_id = 0
         self.got_face = False
 
+        # ---------- Subscribe to apps/modules here ------------
+        self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
+        self.vt_id = self.vt_subscriber.signal.connect(self.vasttrafik_module)
+
         self.look_for_human()
 
-    def look_for_human(self):
+    def look_for_human(self, *_args):
         self.tablet.hideWebview()
         self.tts.say("Im searching for human life")
         # Connect the event callback.
@@ -65,11 +76,18 @@ class HumanGreeter(object):
             self.dialog.activateTopic(self.topic)
             self.dialog.subscribe(self.name)
 
-            # ---------- Subscribe to apps/modules here ------------
-            self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
-            self.vt_id = self.vt_subscriber.signal.connect(self.vasttrafik_module)
+    def rotate(self, *_args):
+        """
+        Callback for event ModuleFinished
+        """
+        print "Rotating 120 deg"
+        self.motion.moveTo(0, 0, math.pi*2/3)
+        self.look_for_human()
 
     def vasttrafik_module(self, *_args):
+        """
+        Callback for event vt_mod which creates a Vasttrafik Module and runs it.
+        """
         print "Starting vt module"
         app_name = "VasttrafikModule"
         try:
@@ -81,9 +99,12 @@ class HumanGreeter(object):
 
         vt_sess = self.session.service(app_name)
         vt_sess.run()
-        #self.look_for_human()
 
     def display_on_tablet(self, full_file_name):
+        """
+        Displays file on Pepper's tablet
+        :param full_file_name: file name including file ending.
+        """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
@@ -114,6 +135,11 @@ class HumanGreeter(object):
             self.tablet.hideWebview()
             print "Tabletview stopped"
         except:
+            pass
+        try:
+            self.motion.rest()
+            print "Going to sleep"
+        except RuntimeError:
             pass
 
     def run(self):

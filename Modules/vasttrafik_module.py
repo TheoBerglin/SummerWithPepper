@@ -38,7 +38,6 @@ class VasttrafikModule(object):
         self.memory = session.service("ALMemory")
         # Get the services ALTextToSpeech, ALDialog, ALTabletService.
         self.tts = session.service("ALTextToSpeech")
-        #self.motion = session.service("ALMotion")
         self.dialog = session.service("ALDialog")
         self.dialog.setLanguage("English")
         self.tablet = session.service("ALTabletService")
@@ -136,6 +135,10 @@ class VasttrafikModule(object):
         self.shutoff()
 
     def transfer_to_pepper(self, file_path):
+        """
+        Transfer file to Pepper using SSH
+        :param file_path: local path to file
+        """
         print "Transferring file to Pepper"
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
@@ -150,6 +153,11 @@ class VasttrafikModule(object):
         os.remove(file_path)  # Remove file after transfer
 
     def display_on_tablet(self, full_file_name, update=True):
+        """
+        Display file on Pepper's tablet
+        :param full_file_name: file name including file ending
+        :param update: if view should be updated (only used with next rides)
+        """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
@@ -176,7 +184,7 @@ class VasttrafikModule(object):
 
     def shutoff(self):
         """
-        Shutoff and unsubscribe to events
+        Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
             #self.rides_subscriber.signal.disconnect(self.next_ride_id)
@@ -198,4 +206,5 @@ class VasttrafikModule(object):
             print "Tabletview stopped"
         except:
             pass
+        self.memory.raiseEvent("ModuleFinished", 1)
 
