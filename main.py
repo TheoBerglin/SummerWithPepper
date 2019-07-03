@@ -88,6 +88,11 @@ class HumanGreeter(object):
         """
         Callback for event vt_mod which creates a Vasttrafik Module and runs it.
         """
+
+        self.dialog.deactivateTopic(self.topic)
+        self.dialog.unloadTopic(self.topic)
+        self.dialog.unsubscribe(self.name)
+
         print "Starting vt module"
         app_name = "VasttrafikModule"
         try:

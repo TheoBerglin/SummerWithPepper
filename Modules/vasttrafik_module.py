@@ -64,6 +64,8 @@ class VasttrafikModule(object):
         self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.show_correct_trip)
         self.trip_input_subscriber = self.memory.subscriber("trip_input_view")
         self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
+        self.exit_subscriber = self.memory.subscriber("exit")
+        self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
         self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
         self.dialog.activateTopic(self.topic)
@@ -182,7 +184,7 @@ class VasttrafikModule(object):
         else:
             self.tablet.showWebview(remote_path)
 
-    def shutoff(self):
+    def shutoff(self, *_args):
         """
         Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
