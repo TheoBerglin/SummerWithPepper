@@ -56,7 +56,7 @@ class Vasttrafik:
         self.time_extracted = time
 
     # Next departure data extraction
-    def extract_next_departure(self, stop_name=None, html_name='departure'):
+    def extract_next_departure(self, stop_name=None):
         """
         Extract the next departure from a stop or a coordinate
         :param stop_name: Name of the stop, default is None
@@ -77,7 +77,6 @@ class Vasttrafik:
                 departure_data[stop['name']] = self.client.get_departures(stop['id'])  # get_departures from close_stops
         self.next_departure = departure_data
         self.set_extracted_time()
-        self.__create_departure_html(html_name)
 
     @staticmethod
     def remove_duplicate_stops(close_stops):
@@ -95,7 +94,7 @@ class Vasttrafik:
         return cleaned
 
     # Calculate a trip data extraction
-    def calculate_trip(self, start_station='Lindholmen', end_station='Prinsgatan', html_name='trip'):
+    def calculate_trip(self, start_station='Lindholmen', end_station='Prinsgatan'):
         """
         Method for calculating a trip.
         Should calculate trip from a given station to another
@@ -107,8 +106,12 @@ class Vasttrafik:
         self.trip_end = end_station
         start_id = self.client.get_stops_by_name(start_station)[0]['id']
         end_id = self.client.get_stops_by_name(end_station)[0]['id']
+        #try:
         self.trip = self.client.calculate_trip_stations(start_id, end_id)['TripList']['Trip']
-        self.create_trip_html(html_name)
+        self.create_trip_html()
+        #except KeyError as e:
+         #   print e
+          #  self.trip = None
 
     # Create trip html
     def create_trip_html(self, name='trip'):
@@ -201,14 +204,13 @@ class Vasttrafik:
         self.add_html_data('</tr>')
 
     # Create departure html
-    def __create_departure_html(self, name='departure'):
+    def create_departure_html(self, name='departure'):
         """
         Create the next departure data html page
         :return:
         """
         if self.get_next_departure() is None:
-            return
-
+            self.extract_next_departure()
         table_data = self.extract_departure_table_data()
         # self.next_departure = sorted(self.next_departure, key=lambda x: int(x['sname'])
         self.html_data = list()  # Remove old shit
@@ -295,7 +297,7 @@ class Vasttrafik:
         :return:
         """
         self.add_html_data('<h2>%s</h2>' % station)
-        self.add_html_data('<table title="Departures:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01">')
+        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01">')
         self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;">')
         self.add_html_data('<th align="left" scope="col">Line</th>')
         self.add_html_data('<th align="left" scope="col">Destination</th>')
@@ -389,9 +391,9 @@ if __name__ == '__main__':
     v = Vasttrafik('C:\Users\etehreb\Documents\SummerWithPepper\Applications')
     # v.extract_next_departure()
     html_name = 'departure'
-    v.extract_next_departure(html_name=html_name)
+    v.create_departure_html(html_name)
     v.calculate_trip('Central station', 'Saltholmen')
     #ref_id = v.trip['TripList']['Trip'][0]['Leg'][1]['JourneyDetailRef']['ref']
     #apa = v.client.get_journey_details(ref_id)
     print 'for debug'
-    # sorted(apa, key=lambda x: (int(x['sname'])))
+
