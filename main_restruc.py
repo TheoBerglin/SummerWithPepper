@@ -2,6 +2,7 @@ import time
 import sys
 import argparse
 from Modules.humangreeter_service import HumanGreeter
+from Modules.vasttrafik_service import VasttrafikService
 
 IP = "192.168.1.102"
 
@@ -22,8 +23,8 @@ if __name__ == '__main__':
             hg.run()
             mod_string = hg.get_module()
             hg.shutoff()
-            print hg.app.initialized()
             print mod_string
+            globals()[mod_string](ip, port, "test")
             time.sleep(10)
             # Run services here
     except KeyboardInterrupt:

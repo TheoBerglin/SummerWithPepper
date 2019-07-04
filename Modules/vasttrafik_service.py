@@ -5,7 +5,7 @@ import argparse
 import math
 
 
-class HumanGreeter(object):
+class VasttrafikService(object):
     """
     A class to react to face detection events and greet the user.
     """
@@ -14,7 +14,7 @@ class HumanGreeter(object):
         """
         Initialisation of qi framework and event detection.
         """
-        super(HumanGreeter, self).__init__()
+        super(VasttrafikService, self).__init__()
         try:
             # Initialize qi framework.
             connection_url = "tcp://" + ip + ":" + str(port)
@@ -24,8 +24,6 @@ class HumanGreeter(object):
             print ("Can't connect to Naoqi at ip \"" + ip + "\" on port " + str(port) + ".\n"
                     "Please check your script arguments. Run with -h option for help.")
             sys.exit(1)
-        except Exception:
-            pass
 
         self.name = name
         print "Starting application"
@@ -103,7 +101,7 @@ class HumanGreeter(object):
         Callback for event vt_mod which creates a Vasttrafik Module and runs it.
         """
 
-        self.module_to_run = 'VasttrafikService'
+        self.module_to_run = 'VasttrafikModule'
         self.run_module = True
 
     def display_on_tablet(self, full_file_name):
