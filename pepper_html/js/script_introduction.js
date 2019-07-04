@@ -20,6 +20,7 @@ try {
 
 $(function () {
   $('#vasttrafik').click(introduceVasttrafik);
+  $('#weather').click(introduceWeather);
   /*$('#vasttrafik2').click(introduceVasttrafik2);*/
 });
 
@@ -40,4 +41,12 @@ function introduceVasttrafik() {
     console.log(error);
   })
   */
+}
+
+function introduceWeather() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('weather', 1);
+  }, function (error) {
+    console.log(error);
+  })
 }
