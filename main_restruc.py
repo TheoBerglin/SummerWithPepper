@@ -26,12 +26,19 @@ if __name__ == '__main__':
                 "Please check your script arguments. Run with -h option for help.")
         sys.exit(1)
 
+    # Create human greeter
     human_greeter = HumanGreeter(app, name)
+
+    # Create dict for storing modules
     modules = dict()
+
+    # Loop until user interrupts
     try:
         while True:
             human_greeter.run()
             mod_string = human_greeter.get_module()
+
+            # If module hasn't been used before
             if mod_string not in modules:
                 print "Adding " + mod_string + " to dict"
                 mod = globals()[mod_string](app, "test", args.ip)
@@ -43,7 +50,9 @@ if __name__ == '__main__':
             time.sleep(1)
     except KeyboardInterrupt:
         print "Interrupted by user, stopping HumanGreeter"
+        # Shut down modules
         for module in modules.itervalues():
             module.shutoff()
         human_greeter.shutoff()
+        human_greeter.go_to_sleep()
         sys.exit(0)

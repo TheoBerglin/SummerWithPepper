@@ -1,7 +1,4 @@
-import qi
 import time
-import sys
-import argparse
 import math
 
 
@@ -29,20 +26,14 @@ class HumanGreeter(object):
         # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
         self.tts = self.session.service("ALTextToSpeech")
         self.motion = self.session.service("ALMotion")
-        #self.motion.wakeUp()  # Must run command in order for Pepper to rotate if not in Auto life
+        self.motion.wakeUp()  # Must run command in order for Pepper to rotate if not in Auto life
         self.dialog = self.session.service("ALDialog")
         self.dialog.setLanguage("English")
         self.tablet = self.session.service("ALTabletService")
         self.face_detection = self.session.service("ALFaceDetection")
         self.face_detection.subscribe(self.name)
 
-        # ModuleFinished should be raised in each module upon shutoff.
-        self.module_finished_subscriber = self.memory.subscriber("ModuleFinished")
-        # Pepper will rotate to find new person
-        self.module_finished_subscriber.signal.connect(self.rotate)
-
         self.face_id = 0
-        self.got_face = False
 
         # ---------- Subscribe to apps/modules here ------------
         self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
@@ -60,30 +51,27 @@ class HumanGreeter(object):
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
 
-        self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
-        self.dialog.activateTopic(self.topic)
-        self.dialog.subscribe(self.name)
-
     def on_human_tracked(self, value):
         """
         Callback for event FaceDetected.
         """
         self.face_subscriber.signal.disconnect(self.face_id)
-        if value == []:  # empty value when the face disappears
-            self.got_face = False
-        elif not self.got_face:  # only speak the first time a face appears
-            self.got_face = True
-            print "Face detected"
-            self.display_on_tablet('introduction.html')
 
-            self.tts.say("Hello carbon-based lifeform")
+        print "Face detected"
+        self.display_on_tablet('introduction.html')
 
-    def rotate(self, *_args):
+        self.tts.say("Hello carbon-based lifeform")
+
+        self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
+
+    def rotate(self, rad, *_args):
         """
         Callback for event ModuleFinished
         """
-        print "Rotating 120 deg"
-        self.motion.moveTo(0, 0, math.pi*2/3)
+        print "Rotating " + str(rad*180/math.pi) + " deg"
+        self.motion.moveTo(0, 0, rad)
 
     def vasttrafik_module(self, *_args):
         """
@@ -108,8 +96,6 @@ class HumanGreeter(object):
         Shutoff and unsubscribe to events
         """
         try:
-            #self.rides_subscriber.signal.disconnect(self.next_ride_id)
-            #self.trip_subscriber.signal.disconnect(self.trip_id)
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
@@ -129,8 +115,10 @@ class HumanGreeter(object):
             print "Tabletview stopped"
         except:
             pass
+
+    def go_to_sleep(self):
         try:
-            #self.motion.rest()
+            self.motion.rest()
             print "Going to sleep"
         except RuntimeError:
             pass
@@ -142,11 +130,12 @@ class HumanGreeter(object):
         print "Starting HumanGreeter"
 
         if self.module_set:
-            self.rotate()
+            self.rotate(math.pi*2/3)
             self.module_set = False
             self.module_to_run = ''
         self.look_for_human()
 
+        # Module runs until a new module has been called
         while not self.module_set:
             time.sleep(1)
         self.shutoff()
