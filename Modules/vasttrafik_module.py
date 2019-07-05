@@ -48,10 +48,8 @@ class VasttrafikModule(object):
 
         self.t = None
 
-        self.face_id = 0
-        self.got_face = False
-
     def run(self):
+
         self.tablet.hideWebview()
 
         self.tts.say("Do you want to see the next rides or plan a trip")
@@ -209,4 +207,3 @@ class VasttrafikModule(object):
         except:
             pass
         self.memory.raiseEvent("ModuleFinished", 1)
-

@@ -44,7 +44,7 @@ class HumanGreeter(object):
         self.module_finished_subscriber.signal.connect(self.rotate)
 
         self.face_id = 0
-        self.got_face = False
+        self.modules = dict()
 
         # ---------- Subscribe to apps/modules here ------------
         self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
@@ -63,25 +63,22 @@ class HumanGreeter(object):
         Callback for event FaceDetected.
         """
         self.face_subscriber.signal.disconnect(self.face_id)
-        if value == []:  # empty value when the face disappears
-            self.got_face = False
-        elif not self.got_face:  # only speak the first time a face appears
-            self.got_face = True
-            print "Face detected"
-            self.display_on_tablet('introduction.html')
 
-            self.tts.say("Hello carbon-based lifeform")
+        print "Face detected"
+        self.display_on_tablet('introduction.html')
 
-            self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
-            self.dialog.activateTopic(self.topic)
-            self.dialog.subscribe(self.name)
+        self.tts.say("Hello carbon-based lifeform")
+
+        self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
 
     def rotate(self, *_args):
         """
         Callback for event ModuleFinished
         """
         print "Rotating 120 deg"
-        self.motion.moveTo(0, 0, math.pi*2/3)
+        self.motion.moveTo(0, 0, 2*math.pi/3)
         self.look_for_human()
 
     def vasttrafik_module(self, *_args):
@@ -95,15 +92,14 @@ class HumanGreeter(object):
 
         print "Starting vt module"
         app_name = "VasttrafikModule"
-        try:
-            vt_mod = VasttrafikModule(self.app, app_name, IP)
-            self.session.registerService(app_name, vt_mod)
-            print "Vasttrafik Module registered"
-        except RuntimeError:
-            print "Already registered"
-
-        vt_sess = self.session.service(app_name)
-        vt_sess.run()
+        if app_name not in self.modules:
+            print "Adding " + app_name + " to dict"
+            vt_mod = VasttrafikModule(self.app, app_name, IP)  # _______________FIXA DETTA_______________
+            self.modules[app_name] = vt_mod
+        else:
+            print app_name + " exists in dict"
+            vt_mod = self.modules[app_name]
+        vt_mod.run()
 
     def display_on_tablet(self, full_file_name):
         """
