@@ -51,8 +51,6 @@ class HumanGreeter(object):
         self.module_set = False
         self.module_to_run = ''
 
-        self.look_for_human()
-
     def get_module(self):
         return self.module_to_run
 
@@ -61,6 +59,10 @@ class HumanGreeter(object):
         self.tts.say("Im searching for human life")
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
+
+        self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
 
     def on_human_tracked(self, value):
         """
@@ -76,17 +78,12 @@ class HumanGreeter(object):
 
             self.tts.say("Hello carbon-based lifeform")
 
-            self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
-            self.dialog.activateTopic(self.topic)
-            self.dialog.subscribe(self.name)
-
     def rotate(self, *_args):
         """
         Callback for event ModuleFinished
         """
         print "Rotating 120 deg"
         self.motion.moveTo(0, 0, math.pi*2/3)
-        self.look_for_human()
 
     def vasttrafik_module(self, *_args):
         """
@@ -143,10 +140,13 @@ class HumanGreeter(object):
         Loop on, wait for events until manual interruption.
         """
         print "Starting HumanGreeter"
+
         if self.module_set:
             self.rotate()
             self.module_set = False
             self.module_to_run = ''
+        self.look_for_human()
+
         while not self.module_set:
             time.sleep(1)
         self.shutoff()

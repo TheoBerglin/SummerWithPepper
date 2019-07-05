@@ -40,12 +40,10 @@ if __name__ == '__main__':
                 print "Module exists in dict"
                 mod = modules[mod_string]
             mod.run()
-            time.sleep(10)
-            # Run services here
+            time.sleep(1)
     except KeyboardInterrupt:
         print "Interrupted by user, stopping HumanGreeter"
         for module in modules.itervalues():
             module.shutoff()
         human_greeter.shutoff()
-
         sys.exit(0)

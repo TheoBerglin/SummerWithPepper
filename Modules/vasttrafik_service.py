@@ -49,8 +49,6 @@ class VasttrafikService(object):
 
         self.module_finished = False
 
-        self.initiate_dialog()
-
     def initiate_dialog(self):
         self.tablet.hideWebview()
 
@@ -210,8 +208,8 @@ class VasttrafikService(object):
             pass
         self.module_finished = False
 
-
     def run(self):
+        self.initiate_dialog()
         while not self.module_finished:
             time.sleep(1)
         self.shutoff()
