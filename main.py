@@ -116,15 +116,14 @@ class HumanGreeter(object):
 
         print "Starting weather module"
         app_name = "WeatherModule"
-        try:
-            weather_mod = WeatherModule(self.app, app_name, IP)
-            self.session.registerService(app_name, weather_mod)
-            print "Weather Module registered"
-        except RuntimeError:
-            print "Already registered"
-
-        weather_sess = self.session.service(app_name)
-        weather_sess.run()
+        if app_name not in self.modules:
+            print "Adding " + app_name + " to dict"
+            weather_mod = WeatherModule(self.app, app_name, IP)  # _______________FIXA DETTA_______________
+            self.modules[app_name] = weather_mod
+        else:
+            print app_name + " exists in dict"
+            weather_mod = self.modules[app_name]
+        weather_mod.run()
 
     def display_on_tablet(self, full_file_name):
         """
