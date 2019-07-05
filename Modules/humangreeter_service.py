@@ -10,23 +10,13 @@ class HumanGreeter(object):
     A class to react to face detection events and greet the user.
     """
 
-    def __init__(self, ip, port, name):
+    def __init__(self, app, name):
         """
         Initialisation of qi framework and event detection.
         """
         super(HumanGreeter, self).__init__()
-        try:
-            # Initialize qi framework.
-            connection_url = "tcp://" + ip + ":" + str(port)
-            self.app = qi.Application([name, "--qi-url=" + connection_url])
-            print "Connected"
-        except RuntimeError:
-            print ("Can't connect to Naoqi at ip \"" + ip + "\" on port " + str(port) + ".\n"
-                    "Please check your script arguments. Run with -h option for help.")
-            sys.exit(1)
-        except Exception:
-            pass
 
+        self.app = app
         self.name = name
         print "Starting application"
         self.app.start()
@@ -58,7 +48,7 @@ class HumanGreeter(object):
         self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
         self.vt_id = self.vt_subscriber.signal.connect(self.vasttrafik_module)
 
-        self.run_module = False
+        self.module_set = False
         self.module_to_run = ''
 
         self.look_for_human()
@@ -104,7 +94,7 @@ class HumanGreeter(object):
         """
 
         self.module_to_run = 'VasttrafikService'
-        self.run_module = True
+        self.module_set = True
 
     def display_on_tablet(self, full_file_name):
         """
@@ -147,12 +137,16 @@ class HumanGreeter(object):
             print "Going to sleep"
         except RuntimeError:
             pass
-        self.app.stop()
 
     def run(self):
         """
         Loop on, wait for events until manual interruption.
         """
         print "Starting HumanGreeter"
-        while not self.run_module:
+        if self.module_set:
+            self.rotate()
+            self.module_set = False
+            self.module_to_run = ''
+        while not self.module_set:
             time.sleep(1)
+        self.shutoff()

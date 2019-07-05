@@ -1,8 +1,11 @@
-import qi
 import time
-import sys
-import argparse
-import math
+import os
+import threading
+import paramiko
+from scp import SCPClient
+from Applications.Vasttrafik import Vasttrafik
+
+IP = ''
 
 
 class VasttrafikService(object):
@@ -10,117 +13,184 @@ class VasttrafikService(object):
     A class to react to face detection events and greet the user.
     """
 
-    def __init__(self, ip, port, name):
+    def __init__(self, app, name, pepper_ip):
         """
         Initialisation of qi framework and event detection.
         """
         super(VasttrafikService, self).__init__()
-        try:
-            # Initialize qi framework.
-            connection_url = "tcp://" + ip + ":" + str(port)
-            self.app = qi.Application([name, "--qi-url=" + connection_url])
-            print "Connected"
-        except RuntimeError:
-            print ("Can't connect to Naoqi at ip \"" + ip + "\" on port " + str(port) + ".\n"
-                    "Please check your script arguments. Run with -h option for help.")
-            sys.exit(1)
+
+        global IP
+        IP = pepper_ip
 
         self.name = name
-        print "Starting application"
-        self.app.start()
-        self.session = self.app.session
+        self.app = app
+        session = app.session
+
+        # Set speech recognition language to swedish (in order for Pepper to understand stations)
+        self.lang = session.service("ALSpeechRecognition")
+        self.lang.pause(True)
+        self.lang.setLanguage('Swedish')
+        self.lang.pause(False)
+        print "Currently set language is %s" % self.lang.getLanguage()
 
         # Get the service ALMemory.
-        self.memory = self.session.service("ALMemory")
-        # Subscribe to FaceDetected event
-        self.face_subscriber = self.memory.subscriber("FaceDetected")
-        # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
-        self.tts = self.session.service("ALTextToSpeech")
-        self.motion = self.session.service("ALMotion")
-        #self.motion.wakeUp()  # Must run command in order for Pepper to rotate if not in Auto life
-        self.dialog = self.session.service("ALDialog")
+        self.memory = session.service("ALMemory")
+        # Get the services ALTextToSpeech, ALDialog, ALTabletService.
+        self.tts = session.service("ALTextToSpeech")
+        self.dialog = session.service("ALDialog")
         self.dialog.setLanguage("English")
-        self.tablet = self.session.service("ALTabletService")
-        self.face_detection = self.session.service("ALFaceDetection")
-        self.face_detection.subscribe(self.name)
+        self.tablet = session.service("ALTabletService")
 
-        # ModuleFinished should be raised in each module upon shutoff.
-        self.module_finished_subscriber = self.memory.subscriber("ModuleFinished")
-        # Pepper will rotate to find new person
-        self.module_finished_subscriber.signal.connect(self.rotate)
+        # Create a Vasttrafik object for handling API calls
+        self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
+        self.vt = Vasttrafik(self.html_path)
 
-        self.face_id = 0
-        self.got_face = False
+        self.t = None
 
-        # ---------- Subscribe to apps/modules here ------------
-        self.vt_subscriber = self.memory.subscriber("vt_mod")  # vt_mod event raised in dialog and on click
-        self.vt_id = self.vt_subscriber.signal.connect(self.vasttrafik_module)
+        self.module_finished = False
 
-        self.run_module = False
-        self.module_to_run = ''
+        self.initiate_dialog()
 
-        self.look_for_human()
-
-    def get_module(self):
-        return self.module_to_run
-
-    def look_for_human(self, *_args):
+    def initiate_dialog(self):
         self.tablet.hideWebview()
-        self.tts.say("Im searching for human life")
-        # Connect the event callback.
-        self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
 
-    def on_human_tracked(self, value):
-        """
-        Callback for event FaceDetected.
-        """
-        self.face_subscriber.signal.disconnect(self.face_id)
-        if value == []:  # empty value when the face disappears
-            self.got_face = False
-        elif not self.got_face:  # only speak the first time a face appears
-            self.got_face = True
-            print "Face detected"
-            self.display_on_tablet('introduction.html')
+        self.tts.say("Do you want to see the next rides or plan a trip")
 
-            self.tts.say("Hello carbon-based lifeform")
+        self.rides_subscriber = self.memory.subscriber("next_ride")
+        self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
+        self.trip_subscriber = self.memory.subscriber("trip")
+        self.trip_id = self.trip_subscriber.signal.connect(self.trip)
+        self.corr_trip_subscriber = self.memory.subscriber("corr_trip_view")
+        self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.show_correct_trip)
+        self.trip_input_subscriber = self.memory.subscriber("trip_input_view")
+        self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
+        self.exit_subscriber = self.memory.subscriber("exit")
+        self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
-            self.topic = self.dialog.loadTopic("/home/nao/HumanGreeting_enu.top")
-            self.dialog.activateTopic(self.topic)
-            self.dialog.subscribe(self.name)
+        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
 
-    def rotate(self, *_args):
+    def show_correct_trip(self, *_args):
         """
-        Callback for event ModuleFinished
+        Callback for when corr_trip_view is set
         """
-        print "Rotating 120 deg"
-        self.motion.moveTo(0, 0, math.pi*2/3)
-        self.look_for_human()
+        self.display_on_tablet('correct_trip_vasttrafik.html', False)
 
-    def vasttrafik_module(self, *_args):
+    def show_trip_input(self, *_args):
         """
-        Callback for event vt_mod which creates a Vasttrafik Module and runs it.
+        Callback for when trip_input_view is set
         """
+        self.display_on_tablet('trip_input.html', False)
 
-        self.module_to_run = 'VasttrafikModule'
-        self.run_module = True
-
-    def display_on_tablet(self, full_file_name):
+    def next_ride(self, *_args):
         """
-        Displays file on Pepper's tablet
-        :param full_file_name: file name including file ending.
+        Callback for when next_ride is set
+        """
+        print "Next ride callback started"
+
+        self.tablet.hideWebview()
+        self.dialog.deactivateTopic(self.topic)
+        self.dialog.unloadTopic(self.topic)
+        self.dialog.unsubscribe(self.name)
+
+        file_name = 'next_ride'
+        file_ending = '.htm'
+        full_file_name = file_name + file_ending
+
+        self.hide_tablet = False
+        self.t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
+        self.t.start()
+        time.sleep(5)
+
+        self.module_finished = True
+
+    def trip(self, *_args):
+        """
+        Callback for when trip is set
+        """
+        print "Trip callback started"
+        self.tts.say("Fetching trip data")
+
+        goal = self.memory.getData("arr_stop")
+        dep = self.memory.getData("dep_stop")
+        print "From: %s" % dep
+        print "To: %s" % goal
+        self.tablet.hideWebview()
+        self.dialog.deactivateTopic(self.topic)
+        self.dialog.unloadTopic(self.topic)
+        self.dialog.unsubscribe(self.name)
+
+        file_name = 'trip'
+        file_ending = '.htm'
+        full_file_name = file_name + file_ending
+        full_path = os.path.join(self.html_path, full_file_name)
+
+        print "Connecting to Vasttrafik and getting trip info"
+        self.vt.calculate_trip(dep, goal)
+        print "Download complete"
+        self.transfer_to_pepper(full_path)
+
+        self.display_on_tablet(full_file_name, False)
+        time.sleep(10)
+
+        self.module_finished = True
+
+    def transfer_to_pepper(self, file_path):
+        """
+        Transfer file to Pepper using SSH
+        :param file_path: local path to file
+        """
+        print "Transferring file to Pepper"
+        ssh = paramiko.SSHClient()
+        ssh.load_system_host_keys()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(IP, username="nao", password="ericsson")
+
+        # SCPCLient takes a paramiko transport as an argument
+        scp = SCPClient(ssh.get_transport())
+
+        scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
+        print "Transfer complete"
+        os.remove(file_path)  # Remove file after transfer
+
+    def display_on_tablet(self, full_file_name, update=True):
+        """
+        Display file on Pepper's tablet
+        :param full_file_name: file name including file ending
+        :param update: if view should be updated (only used with next rides)
         """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
-        self.tablet.showWebview(remote_path)
+        if update:
+            while True:
+                full_path = os.path.join(self.html_path, full_file_name)
 
-    def shutoff(self):
+                file_name = full_file_name.split('.')[0]
+
+                print "Connecting to Vasttrafik and getting next rides"
+                self.vt.create_departure_html(file_name)
+                print "Download complete"
+
+                self.transfer_to_pepper(full_path)
+                self.tablet.showWebview(remote_path)
+
+                time.sleep(5)  # Update view with new data every 3 seconds
+                if self.hide_tablet:
+                    print "Killing thread and hiding tablet"
+                    self.tablet.hideWebview()
+                    break
+        else:
+            self.tablet.showWebview(remote_path)
+
+    def shutoff(self, *_args):
         """
-        Shutoff and unsubscribe to events
+        Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
-            #self.rides_subscriber.signal.disconnect(self.next_ride_id)
-            #self.trip_subscriber.signal.disconnect(self.trip_id)
+            # self.rides_subscriber.signal.disconnect(self.next_ride_id)
+            # self.trip_subscriber.signal.disconnect(self.trip_id)
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
@@ -130,27 +200,18 @@ class VasttrafikService(object):
         except AttributeError:
             pass
         try:
-            self.face_subscriber.signal.disconnect(self.face_id)
-            self.face_detection.unsubscribe(self.name)
-            print "Unsubscribed to face"
-        except RuntimeError:
-            pass
-        try:
+            self.hide_tablet = True
+            if self.t is not None:
+                print "Main waiting for thread to die"
+                self.t.join()
             self.tablet.hideWebview()
             print "Tabletview stopped"
         except:
             pass
-        try:
-            #self.motion.rest()
-            print "Going to sleep"
-        except RuntimeError:
-            pass
-        self.app.stop()
+        self.module_finished = False
+
 
     def run(self):
-        """
-        Loop on, wait for events until manual interruption.
-        """
-        print "Starting HumanGreeter"
-        while not self.run_module:
+        while not self.module_finished:
             time.sleep(1)
+        self.shutoff()
