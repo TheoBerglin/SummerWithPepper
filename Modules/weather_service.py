@@ -11,7 +11,7 @@ from Applications.Vasttrafik import Vasttrafik
 IP = ''
 
 
-class WeatherModule(object):
+class WeatherService(object):
     """
     A module to handle interaction between the robot and the vasttrafik API.
     """
@@ -20,10 +20,12 @@ class WeatherModule(object):
         """
         Initialisation of module and event detection.
         """
-        super(WeatherModule, self).__init__()
-        self.name = name
+        super(WeatherService, self).__init__()
+
         global IP
         IP = pepper_ip
+
+        self.name = name
 
         session = app.session
 
@@ -43,12 +45,14 @@ class WeatherModule(object):
         self.tablet = session.service("ALTabletService")
 
         # Create a Vasttrafik object for handling API calls
-        self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
+        self.html_path = os.path.dirname(os.path.abspath('main_old.py')) + r'\Applications'
         self.vt = Vasttrafik(self.html_path)
 
         self.t = None
 
-    def run(self):
+        self.module_finished = False
+
+    def initiate_dialog(self):
         self.tablet.hideWebview()
 
         self.tts.say("It's sunny")
@@ -56,7 +60,7 @@ class WeatherModule(object):
         self.exit_subscriber = self.memory.subscriber("exit")
         self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
-        self.shutoff()
+        self.module_finished = True
 
     def transfer_to_pepper(self, file_path):
         """
@@ -130,5 +134,10 @@ class WeatherModule(object):
             print "Tabletview stopped"
         except:
             pass
-        self.memory.raiseEvent("ModuleFinished", 1)
+        self.module_finished = False
 
+    def run(self):
+        self.initiate_dialog()
+        while not self.module_finished:
+            time.sleep(1)
+        self.shutoff()

@@ -43,7 +43,7 @@ class VasttrafikModule(object):
         self.tablet = session.service("ALTabletService")
 
         # Create a Vasttrafik object for handling API calls
-        self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
+        self.html_path = os.path.dirname(os.path.abspath('main_old.py')) + r'\Applications'
         self.vt = Vasttrafik(self.html_path)
 
         self.t = None
