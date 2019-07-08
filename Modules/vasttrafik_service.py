@@ -70,7 +70,6 @@ class VasttrafikService(object):
         self.exit_subscriber = self.memory.subscriber("exit")
         self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
-
     def show_correct_trip(self, *_args):
         """
         Callback for when corr_trip_view is set
@@ -117,9 +116,6 @@ class VasttrafikService(object):
         print "From: %s" % dep
         print "To: %s" % goal
         self.tablet.hideWebview()
-        self.dialog.deactivateTopic(self.topic)
-        self.dialog.unloadTopic(self.topic)
-        self.dialog.unsubscribe(self.name)
 
         file_name = 'trip'
         file_ending = '.htm'
@@ -127,16 +123,27 @@ class VasttrafikService(object):
         full_path = os.path.join(self.html_path, full_file_name)
 
         print "Connecting to Vasttrafik and getting trip info"
-        self.vt.calculate_trip(dep, goal)
-        print "Download complete"
-        self.transfer_to_pepper(full_path)
+        try:
+            self.vt.calculate_trip(dep, goal)
 
-        self.display_on_tablet(full_file_name, False)
-        time.sleep(10)
+            print "Download complete"
+            self.transfer_to_pepper(full_path)
 
-        self.module_finished = True
+            self.display_on_tablet(full_file_name, False)
+            time.sleep(10)
+            self.module_finished = True
+            self.dialog.deactivateTopic(self.topic)
+            self.dialog.unloadTopic(self.topic)
+            self.dialog.unsubscribe(self.name)
+        except KeyError:
+            error_string = 'I am sorry, something went wrong.' \
+                           ' I couldn\'t plan a trip from %s to %s. Let\'s try again' % (dep, goal)
+            self.tts.say(error_string)
+            self.display_on_tablet('vasttrafik.html', False)
+            self.memory.raiseEvent('trip_click', 1)
 
-    def transfer_to_pepper(self, file_path):
+    @staticmethod
+    def transfer_to_pepper(file_path):
         """
         Transfer file to Pepper using SSH
         :param file_path: local path to file
