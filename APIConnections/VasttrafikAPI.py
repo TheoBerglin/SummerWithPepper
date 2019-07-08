@@ -1,14 +1,14 @@
 import base64
 import json
 import time as time_module
-
+import datetime
 import requests
 import yaml
 import os
 
 TOKEN_URL = 'https://api.vasttrafik.se/token'
 API_BASE_URL = 'https://api.vasttrafik.se/bin/rest.exe/v2'
-API_SETTINGS_FILE = os.path.dirname(os.path.abspath(__file__)) +'\\api_settings.yml'
+API_SETTINGS_FILE = os.path.dirname(os.path.abspath(__file__)) + '\\api_settings.yml'
 
 
 def fetch_token(key, secret):
@@ -82,7 +82,7 @@ class VasttrafikClient:
             get_str = '/departureBoard?id=' + str(stopID) + '&date=' + date + '&time=' + time
         else:
             get_str = '/departureBoard?id=%s&timeSpan=30&date=%s&time=%s' % \
-                        (stopID, time_module.strftime("%Y-%m-%d"), time_module.strftime("%H:%M"))
+                      (stopID, time_module.strftime("%Y-%m-%d"), time_module.strftime("%H:%M"))
         data = self.get(get_str, query_params)
         try:
             return data['DepartureBoard']['Departure']
@@ -91,8 +91,14 @@ class VasttrafikClient:
             return list()
 
     # /trip endpoint
-    def calculate_trip_stations(self, start_id, stop_id, query_params=None):
-        return self.get('/trip?originId=%s&destId=%s' % (start_id, stop_id), query_params)
+    def calculate_trip_stations(self, start_id, stop_id, date=None, time=None, query_params=None):
+        if time is None:
+            now = datetime.datetime.now()
+            time = now.strftime("%H%M")
+        if date is None:
+            now = datetime.datetime.now()
+            date = now.strftime("%Y-%m-%d")
+        return self.get('/trip?originId=%s&destId=%s&date=%s&time=%s' % (start_id, stop_id, date, time), query_params)
 
     # /Journey-details
     def get_journey_details(self, ref, query_params=None):
