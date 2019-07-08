@@ -19,22 +19,22 @@ try {
 }
 
 $(function () {
-  $('#yesButton').click(yesButton);
-  $('#noButton').click(noButton);
+  $('#rideButton').click(rideButton);
+  $('#tripButton').click(tripButton);
 });
 
 
-function noButton() {
+function rideButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('incorrect_trip', 1);
+		memory.raiseEvent('next_ride_click', 1);
   }, function (error) {
     console.log(error);
   })
 }
 
-function yesButton() {
+function tripButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('correct_trip', 1);
+		memory.raiseEvent('trip_click', 1);
   }, function (error) {
     console.log(error);
   })

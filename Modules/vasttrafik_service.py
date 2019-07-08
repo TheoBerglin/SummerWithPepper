@@ -52,6 +52,11 @@ class VasttrafikService(object):
     def initiate_dialog(self):
         self.tablet.hideWebview()
 
+        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
+
+        self.display_on_tablet('vasttrafik.html', False)
         self.tts.say("Do you want to see the next rides or plan a trip")
 
         self.rides_subscriber = self.memory.subscriber("next_ride")
@@ -65,9 +70,6 @@ class VasttrafikService(object):
         self.exit_subscriber = self.memory.subscriber("exit")
         self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
-        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
-        self.dialog.activateTopic(self.topic)
-        self.dialog.subscribe(self.name)
 
     def show_correct_trip(self, *_args):
         """
