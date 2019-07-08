@@ -3,12 +3,11 @@ import os
 import threading
 import paramiko
 from scp import SCPClient
+from Modules.service import ServiceBaseClass
 from Applications.Vasttrafik import Vasttrafik
 
-IP = ''
 
-
-class VasttrafikService(object):
+class VasttrafikService(ServiceBaseClass):
     """
     A class to react to face detection events and greet the user.
     """
@@ -17,37 +16,13 @@ class VasttrafikService(object):
         """
         Initialisation of qi framework and event detection.
         """
-        super(VasttrafikService, self).__init__()
-
-        global IP
-        IP = pepper_ip
-
-        self.name = name
-        self.app = app
-        session = app.session
-
-        # Set speech recognition language to swedish (in order for Pepper to understand stations)
-        self.lang = session.service("ALSpeechRecognition")
-        self.lang.pause(True)
-        self.lang.setLanguage('Swedish')
-        self.lang.pause(False)
-        print "Currently set language is %s" % self.lang.getLanguage()
-
-        # Get the service ALMemory.
-        self.memory = session.service("ALMemory")
-        # Get the services ALTextToSpeech, ALDialog, ALTabletService.
-        self.tts = session.service("ALTextToSpeech")
-        self.dialog = session.service("ALDialog")
-        self.dialog.setLanguage("English")
-        self.tablet = session.service("ALTabletService")
-
-        # Create a Vasttrafik object for handling API calls
+        super(VasttrafikService, self).__init__(app, name, pepper_ip)
+        # Path to folder for saving created html files
         self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
+        # Create a Vasttrafik object for handling API calls
         self.vt = Vasttrafik(self.html_path)
-
+        # Thread initialization
         self.t = None
-
-        self.module_finished = False
 
     def initiate_dialog(self):
         self.tablet.hideWebview()
@@ -142,8 +117,7 @@ class VasttrafikService(object):
             self.display_on_tablet('vasttrafik.html', False)
             self.memory.raiseEvent('trip_click', 1)
 
-    @staticmethod
-    def transfer_to_pepper(file_path):
+    def transfer_to_pepper(self, file_path):
         """
         Transfer file to Pepper using SSH
         :param file_path: local path to file
@@ -152,7 +126,7 @@ class VasttrafikService(object):
         ssh = paramiko.SSHClient()
         ssh.load_system_host_keys()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(IP, username="nao", password="ericsson")
+        ssh.connect(self.IP, username="nao", password="ericsson")
 
         # SCPCLient takes a paramiko transport as an argument
         scp = SCPClient(ssh.get_transport())

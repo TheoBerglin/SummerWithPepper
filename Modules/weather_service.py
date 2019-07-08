@@ -6,12 +6,10 @@ import os
 import paramiko
 import threading
 from scp import SCPClient
-from Applications.Vasttrafik import Vasttrafik
-
-IP = ''
+from Modules.service import ServiceBaseClass
 
 
-class WeatherService(object):
+class WeatherService(ServiceBaseClass):
     """
     A module to handle interaction between the robot and the vasttrafik API.
     """
@@ -20,37 +18,7 @@ class WeatherService(object):
         """
         Initialisation of module and event detection.
         """
-        super(WeatherService, self).__init__()
-
-        global IP
-        IP = pepper_ip
-
-        self.name = name
-
-        session = app.session
-
-        # Set speech recognition language to swedish (in order for Pepper to understand stations)
-        self.lang = session.service("ALSpeechRecognition")
-        self.lang.pause(True)
-        self.lang.setLanguage('Swedish')
-        self.lang.pause(False)
-        print "Currently set language is %s" % self.lang.getLanguage()
-
-        # Get the service ALMemory.
-        self.memory = session.service("ALMemory")
-        # Get the services ALTextToSpeech, ALDialog, ALTabletService.
-        self.tts = session.service("ALTextToSpeech")
-        self.dialog = session.service("ALDialog")
-        self.dialog.setLanguage("English")
-        self.tablet = session.service("ALTabletService")
-
-        # Create a Vasttrafik object for handling API calls
-        self.html_path = os.path.dirname(os.path.abspath('main_old.py')) + r'\Applications'
-        self.vt = Vasttrafik(self.html_path)
-
-        self.t = None
-
-        self.module_finished = False
+        super(WeatherService, self).__init__(app, name, pepper_ip)
 
     def initiate_dialog(self):
         self.tablet.hideWebview()
