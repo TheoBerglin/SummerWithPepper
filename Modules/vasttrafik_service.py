@@ -1,8 +1,6 @@
 import time
 import os
 import threading
-import paramiko
-from scp import SCPClient
 from Modules.service import ServiceBaseClass
 from Applications.Vasttrafik import Vasttrafik
 
@@ -43,8 +41,6 @@ class VasttrafikService(ServiceBaseClass):
         self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.show_correct_trip)
         self.trip_input_subscriber = self.memory.subscriber("trip_input_view")
         self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
-        self.exit_subscriber = self.memory.subscriber("exit")
-        self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
 
     def show_correct_trip(self, *_args):
         """
@@ -118,13 +114,6 @@ class VasttrafikService(ServiceBaseClass):
             self.display_on_tablet('vasttrafik.html', False)
             self.memory.raiseEvent('trip_click', 1)
 
-    def transfer_to_pepper(self, file_path):
-        """
-        Transfer file to Pepper using SSH
-        :param file_path: local path to file
-        """
-        super(VasttrafikService, self).transfer_to_pepper(file_path)
-
     def display_on_tablet(self, full_file_name, update=True):
         """
         Display file on Pepper's tablet
@@ -133,7 +122,7 @@ class VasttrafikService(ServiceBaseClass):
         """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
-        remote_path = 'http://' + ip + '/apps/' + self.folder_name + full_file_name
+        remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
         if update:
             while True:
                 full_path = os.path.join(self.local_html_path, full_file_name)
@@ -160,8 +149,6 @@ class VasttrafikService(ServiceBaseClass):
         Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
-            # self.rides_subscriber.signal.disconnect(self.next_ride_id)
-            # self.trip_subscriber.signal.disconnect(self.trip_id)
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)

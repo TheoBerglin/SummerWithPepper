@@ -30,13 +30,16 @@ class ServiceBaseClass(object):
         self.dialog.setLanguage("English")
         self.tablet = session.service("ALTabletService")
 
+        # Subscribe to exit signal
+        self.exit_subscriber = self.memory.subscriber("exit")
+        self.exit_id = self.exit_subscriber.signal.connect(self.exit)
+
         # Set variable to not finished on startup
         self.module_finished = False
 
         # Path to folder for saving created html files
         self.local_html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
 
-    @abstractmethod
     def transfer_to_pepper(self, file_path):
         """
         Transfer file to Pepper using SSH
@@ -55,3 +58,21 @@ class ServiceBaseClass(object):
         scp.put(file_path, remote_path=remote_path)
         print "Transfer complete"
         os.remove(file_path)  # Remove file after transfer
+
+    @abstractmethod
+    def display_on_tablet(self, full_file_name):
+        """
+        Display file on Pepper's tablet
+        :param full_file_name: file name including file ending
+        """
+        self.tablet.enableWifi()
+        ip = self.tablet.robotIp()
+        remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
+        self.tablet.showWebview(remote_path)
+
+    def exit(self, *_args):
+        """
+        Callback for exit event raised
+        """
+        self.module_finished = True
+

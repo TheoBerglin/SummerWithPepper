@@ -24,35 +24,20 @@ class WeatherService(ServiceBaseClass):
 
         self.tts.say("It's sunny")
 
-        self.exit_subscriber = self.memory.subscriber("exit")
-        self.exit_id = self.exit_subscriber.signal.connect(self.shutoff)
-
         self.module_finished = True
-
-    def transfer_to_pepper(self, file_path):
-        """
-        Transfer file to Pepper using SSH
-        :param file_path: local path to file
-        """
-        super(WeatherService, self).transfer_to_pepper(file_path)
 
     def display_on_tablet(self, full_file_name):
         """
         Display file on Pepper's tablet
         :param full_file_name: file name including file ending
         """
-        self.tablet.enableWifi()
-        ip = self.tablet.robotIp()
-        remote_path = 'http://' + ip + '/apps/' + self.folder_name + full_file_name
-        self.tablet.showWebview(remote_path)
+        super(WeatherService, self).display_on_tablet(full_file_name)
 
     def shutoff(self, *_args):
         """
         Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
-            #self.rides_subscriber.signal.disconnect(self.next_ride_id)
-            #self.trip_subscriber.signal.disconnect(self.trip_id)
             #self.dialog.deactivateTopic(self.topic)
             #self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
