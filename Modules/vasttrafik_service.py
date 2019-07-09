@@ -105,7 +105,7 @@ class VasttrafikService(ServiceBaseClass):
 
     def satisfied(self):
         """
-        Method for checking if user is done with the interacion
+        Method for checking if user is done with the interaction
         :return:
         """
         # Unload main dialog
@@ -182,9 +182,9 @@ class VasttrafikService(ServiceBaseClass):
             print "Tabletview stopped"
         except:
             pass
-        self.module_finished = False
 
     def run(self):
+        self.module_finished = False
         self.initiate_dialog()
         while not self.module_finished:
             time.sleep(1)
