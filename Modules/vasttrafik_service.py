@@ -37,22 +37,8 @@ class VasttrafikService(ServiceBaseClass):
         self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
         self.trip_subscriber = self.memory.subscriber("trip")
         self.trip_id = self.trip_subscriber.signal.connect(self.trip)
-        self.corr_trip_subscriber = self.memory.subscriber("corr_trip_view")
-        self.corr_trip_id = self.corr_trip_subscriber.signal.connect(self.show_correct_trip)
-        self.trip_input_subscriber = self.memory.subscriber("trip_input_view")
-        self.trip_input_id = self.trip_input_subscriber.signal.connect(self.show_trip_input)
-
-    def show_correct_trip(self, *_args):
-        """
-        Callback for when corr_trip_view is set
-        """
-        self.display_on_tablet('correct_trip_vasttrafik.html', False)
-
-    def show_trip_input(self, *_args):
-        """
-        Callback for when trip_input_view is set
-        """
-        self.display_on_tablet('trip_input.html', False)
+        self.new_view_subscriber = self.memory.subscriber("new_view")
+        self.new_view_id = self.new_view_subscriber.signal.connect(self.display_on_tablet)
 
     def next_ride(self, *_args):
         """
@@ -114,12 +100,13 @@ class VasttrafikService(ServiceBaseClass):
             self.display_on_tablet('vasttrafik.html', False)
             self.memory.raiseEvent('trip_click', 1)
 
-    def display_on_tablet(self, full_file_name, update=True):
+    def display_on_tablet(self, full_file_name, update=False):
         """
         Display file on Pepper's tablet
         :param full_file_name: file name including file ending
         :param update: if view should be updated (only used with next rides)
         """
+        print full_file_name
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
