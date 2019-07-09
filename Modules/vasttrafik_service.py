@@ -9,18 +9,19 @@ from Applications.Vasttrafik import Vasttrafik
 
 class VasttrafikService(ServiceBaseClass):
     """
-    A class to react to face detection events and greet the user.
+    A module to handle interaction between the robot and the vasttrafik API.
     """
 
     def __init__(self, app, name, pepper_ip):
         """
         Initialisation of qi framework and event detection.
         """
-        super(VasttrafikService, self).__init__(app, name, pepper_ip)
-        # Path to folder for saving created html files
-        self.html_path = os.path.dirname(os.path.abspath('main.py')) + r'\Applications'
+        # Folder name on Pepper
+        folder_name = "vasttrafik"
+        # Superclass init call
+        super(VasttrafikService, self).__init__(app, name, pepper_ip, folder_name)
         # Create a Vasttrafik object for handling API calls
-        self.vt = Vasttrafik(self.html_path)
+        self.vt = Vasttrafik(self.local_html_path)
         # Thread initialization
         self.t = None
 
@@ -95,7 +96,7 @@ class VasttrafikService(ServiceBaseClass):
         file_name = 'trip'
         file_ending = '.htm'
         full_file_name = file_name + file_ending
-        full_path = os.path.join(self.html_path, full_file_name)
+        full_path = os.path.join(self.local_html_path, full_file_name)
 
         print "Connecting to Vasttrafik and getting trip info"
         try:
@@ -122,18 +123,7 @@ class VasttrafikService(ServiceBaseClass):
         Transfer file to Pepper using SSH
         :param file_path: local path to file
         """
-        print "Transferring file to Pepper"
-        ssh = paramiko.SSHClient()
-        ssh.load_system_host_keys()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(self.IP, username="nao", password="ericsson")
-
-        # SCPCLient takes a paramiko transport as an argument
-        scp = SCPClient(ssh.get_transport())
-
-        scp.put(file_path, remote_path='/home/nao/.local/share/PackageManager/apps/vasttrafik/html')
-        print "Transfer complete"
-        os.remove(file_path)  # Remove file after transfer
+        super(VasttrafikService, self).transfer_to_pepper(file_path)
 
     def display_on_tablet(self, full_file_name, update=True):
         """
@@ -143,10 +133,10 @@ class VasttrafikService(ServiceBaseClass):
         """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
-        remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
+        remote_path = 'http://' + ip + '/apps/' + self.folder_name + full_file_name
         if update:
             while True:
-                full_path = os.path.join(self.html_path, full_file_name)
+                full_path = os.path.join(self.local_html_path, full_file_name)
 
                 file_name = full_file_name.split('.')[0]
 
