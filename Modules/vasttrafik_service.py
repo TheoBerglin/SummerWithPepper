@@ -24,9 +24,10 @@ class VasttrafikService(ServiceBaseClass):
         # Thread initialization
         self.t = None
 
-    def initiate_dialog(self):
+    def initiate_dialog(self, *_args):
         self.tablet.hideWebview()
 
+        # Load dialog and display intro screen
         self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
         self.dialog.activateTopic(self.topic)
         self.dialog.subscribe(self.name)
@@ -34,6 +35,7 @@ class VasttrafikService(ServiceBaseClass):
         self.display_on_tablet('vasttrafik.html', False)
         self.tts.say("Do you want to see the next rides or plan a trip")
 
+        # Subscribe to events raised in dialog or on button click
         self.rides_subscriber = self.memory.subscriber("next_ride")
         self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
         self.trip_subscriber = self.memory.subscriber("trip")
@@ -49,9 +51,6 @@ class VasttrafikService(ServiceBaseClass):
         print "Next ride callback started"
 
         self.tablet.hideWebview()
-        self.dialog.deactivateTopic(self.topic)
-        self.dialog.unloadTopic(self.topic)
-        self.dialog.unsubscribe(self.name)
 
         file_name = 'next_ride'
         file_ending = '.htm'
@@ -62,7 +61,7 @@ class VasttrafikService(ServiceBaseClass):
         self.t.start()
         time.sleep(5)
 
-        self.module_finished = True
+        self.satisfied()
 
     def trip(self, *_args):
         """
@@ -96,16 +95,32 @@ class VasttrafikService(ServiceBaseClass):
 
             self.display_on_tablet(full_file_name, False)
             time.sleep(10)
-            self.module_finished = True
-            self.dialog.deactivateTopic(self.topic)
-            self.dialog.unloadTopic(self.topic)
-            self.dialog.unsubscribe(self.name)
+            self.satisfied()
         except KeyError:
             error_string = 'I am sorry, something went wrong.' \
                            ' I couldn\'t plan a trip from %s to %s. Let\'s try again' % (dep, goal)
             self.tts.say(error_string)
             self.display_on_tablet('vasttrafik.html', False)
             self.memory.raiseEvent('trip_click', 1)
+
+    def satisfied(self):
+        """
+        Method for checking if user is done with the interacion
+        :return:
+        """
+        # Unload main dialog
+        self.dialog.deactivateTopic(self.topic)
+        self.dialog.unloadTopic(self.topic)
+
+        # Load satisfied dialog
+        self.satisfied_topic = self.dialog.loadTopic("/home/nao/Satisfied_enu.top")
+        self.dialog.activateTopic(self.satisfied_topic)
+        self.dialog.subscribe(self.name)
+
+        # While user is not satisified
+        while not self.module_finished:
+            self.tts.say("Are you satisfied")
+            time.sleep(5)
 
     def display_on_tablet(self, full_file_name, update=False):
         """
@@ -139,13 +154,21 @@ class VasttrafikService(ServiceBaseClass):
 
     def shutoff(self, *_args):
         """
-        Shutoff and unsubscribe to events. Trigger ModuleFinished event.
+        Shutoff and unsubscribe to events.
         """
+        try:
+            self.dialog.deactivateTopic(self.satisfied_topic)
+            self.dialog.unloadTopic(self.satisfied_topic)
+            print "Stopped satisfied dialog"
+        except AttributeError:
+            pass
+        except RuntimeError:
+            pass
         try:
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
-            print "Stopped dialog"
+            print "Stopped main vasttrafik dialog"
         except RuntimeError:
             pass
         except AttributeError:
