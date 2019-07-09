@@ -94,10 +94,12 @@ class Vasttrafik:
         return cleaned
 
     # Calculate a trip data extraction
-    def calculate_trip(self, start_station='Lindholmen', end_station='Prinsgatan'):
+    def calculate_trip(self, start_station='Lindholmen', end_station='Prinsgatan', date=None, trip_time=None):
         """
         Method for calculating a trip.
         Should calculate trip from a given station to another
+        :param trip_time:
+        :param date:
         :param start_station: Station for which the trip should start from. Default Lindholmen
         :param end_station: End station of the trip. Default Prinsgatan
         :return:
@@ -107,7 +109,7 @@ class Vasttrafik:
         start_id = self.client.get_stops_by_name(start_station)[0]['id']
         end_id = self.client.get_stops_by_name(end_station)[0]['id']
         #try:
-        self.trip = self.client.calculate_trip_stations(start_id, end_id)['TripList']['Trip']
+        self.trip = self.client.calculate_trip_stations(start_id, end_id, date=date, time=trip_time)['TripList']['Trip']
         self.create_trip_html()
         #except KeyError as e:
          #   print e

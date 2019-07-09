@@ -30,11 +30,28 @@ function goButton() {
 	session.service('ALMemory').then(function (memory) {
 		var dep = document.getElementById('departure').value;
 		var arr = document.getElementById('arrival').value;
-		memory.insertData('dep_stop', dep);
+		var timeControl = "";
+        var selected = $("input[type='radio'][name='time_radio']:checked");
+        if (selected.length > 0) {
+            timeControl = selected.val();
+        }
+        memory.insertData('dep_stop', dep);
 		memory.insertData('arr_stop', arr);
+		memory.insertData('trip_time', timeControl);
 		memory.raiseEvent('trip', 1);
   }, function (error) {
     console.log(error);
   })
 }
+
+var timepicker = new TimePicker('time', {
+  lang: 'en',
+  theme: 'dark'
+});
+timepicker.on('change', function(evt) {
+
+  var value = (evt.hour || '00') + ':' + (evt.minute || '00');
+  evt.element.value = value;
+
+});
 

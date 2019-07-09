@@ -2,6 +2,7 @@ import time
 import os
 import threading
 from Modules.service import ServiceBaseClass
+import datetime
 from Applications.Vasttrafik import Vasttrafik
 
 
@@ -29,7 +30,7 @@ class VasttrafikService(ServiceBaseClass):
         self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
         self.dialog.activateTopic(self.topic)
         self.dialog.subscribe(self.name)
-
+        self.memory.insertData("trip_time", 0)
         self.display_on_tablet('vasttrafik.html', False)
         self.tts.say("Do you want to see the next rides or plan a trip")
 
@@ -37,6 +38,7 @@ class VasttrafikService(ServiceBaseClass):
         self.next_ride_id = self.rides_subscriber.signal.connect(self.next_ride)
         self.trip_subscriber = self.memory.subscriber("trip")
         self.trip_id = self.trip_subscriber.signal.connect(self.trip)
+
         self.new_view_subscriber = self.memory.subscriber("new_view")
         self.new_view_id = self.new_view_subscriber.signal.connect(self.display_on_tablet)
 
@@ -71,6 +73,11 @@ class VasttrafikService(ServiceBaseClass):
 
         goal = self.memory.getData("arr_stop")
         dep = self.memory.getData("dep_stop")
+        time_delta = self.memory.getData("trip_time")
+        print 'time is: ' + str(time_delta)
+
+        trip_time = datetime.datetime.now() + datetime.timedelta(minutes=int(time_delta))
+        trip_time = trip_time.strftime("%H%M")
         print "From: %s" % dep
         print "To: %s" % goal
         self.tablet.hideWebview()
@@ -82,7 +89,7 @@ class VasttrafikService(ServiceBaseClass):
 
         print "Connecting to Vasttrafik and getting trip info"
         try:
-            self.vt.calculate_trip(dep, goal)
+            self.vt.calculate_trip(start_station=dep, end_station=goal, trip_time=trip_time)
 
             print "Download complete"
             self.transfer_to_pepper(full_path)
@@ -106,7 +113,6 @@ class VasttrafikService(ServiceBaseClass):
         :param full_file_name: file name including file ending
         :param update: if view should be updated (only used with next rides)
         """
-        print full_file_name
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
