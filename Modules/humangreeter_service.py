@@ -18,6 +18,7 @@ class HumanGreeter(object):
         print "Starting application"
         self.app.start()
         self.session = self.app.session
+        self.folder_name = "humangreeter"
 
         # Get the service ALMemory.
         self.memory = self.session.service("ALMemory")
@@ -51,7 +52,7 @@ class HumanGreeter(object):
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
 
-    def on_human_tracked(self, value):
+    def on_human_tracked(self, _args):
         """
         Callback for event FaceDetected.
         """
@@ -88,7 +89,7 @@ class HumanGreeter(object):
         """
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
-        remote_path = 'http://' + ip + '/apps/vasttrafik/' + full_file_name
+        remote_path = 'http://' + ip + '/apps/' + self.folder_name + '/' + full_file_name
         self.tablet.showWebview(remote_path)
 
     def shutoff(self):
