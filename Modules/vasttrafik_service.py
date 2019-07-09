@@ -27,7 +27,7 @@ class VasttrafikService(ServiceBaseClass):
     def initiate_dialog(self):
         self.tablet.hideWebview()
 
-        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreetingMod_enu.top")
+        self.topic = self.dialog.loadTopic("/home/nao/VasttrafikGreeting_enu.top")
         self.dialog.activateTopic(self.topic)
         self.dialog.subscribe(self.name)
         self.memory.insertData("trip_time", 0)
