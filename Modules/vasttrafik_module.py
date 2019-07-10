@@ -1,12 +1,12 @@
 import time
 import os
 import threading
-from Modules.service import ServiceBaseClass
+from Modules.module import ModuleBaseClass
 import datetime
 from Applications.Vasttrafik import Vasttrafik
 
 
-class VasttrafikService(ServiceBaseClass):
+class VasttrafikModule(ModuleBaseClass):
     """
     A module to handle interaction between the robot and the vasttrafik API.
     """
@@ -18,7 +18,7 @@ class VasttrafikService(ServiceBaseClass):
         # Folder name on Pepper
         folder_name = "vasttrafik"
         # Superclass init call
-        super(VasttrafikService, self).__init__(app, name, pepper_ip, folder_name)
+        super(VasttrafikModule, self).__init__(app, name, pepper_ip, folder_name)
         # Create a Vasttrafik object for handling API calls
         self.vt = Vasttrafik(self.local_html_path)
         # Thread initialization

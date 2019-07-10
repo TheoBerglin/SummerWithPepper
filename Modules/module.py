@@ -4,7 +4,7 @@ from scp import SCPClient
 import os
 
 
-class ServiceBaseClass(object):
+class ModuleBaseClass(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod

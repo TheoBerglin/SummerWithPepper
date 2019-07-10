@@ -4,7 +4,7 @@ import sys
 import argparse
 import math
 from Old.vasttrafik_module import VasttrafikModule
-from Modules.weather_service import WeatherModule
+from Modules.weather_module import WeatherModule
 
 IP = "192.168.1.102"
 

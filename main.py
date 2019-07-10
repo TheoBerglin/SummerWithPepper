@@ -2,9 +2,9 @@ import time
 import sys
 import argparse
 import qi
-from Modules.humangreeter_service import HumanGreeter
-from Modules.vasttrafik_service import VasttrafikService
-from Modules.weather_service import WeatherService
+from Modules.humangreeter_module import HumanGreeter
+from Modules.vasttrafik_module import VasttrafikModule
+from Modules.weather_module import WeatherModule
 
 IP = "192.168.1.102"
 

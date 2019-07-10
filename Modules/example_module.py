@@ -2,12 +2,12 @@
 # -*- encoding: UTF-8 -*-
 
 import time
-from Modules.service import ServiceBaseClass
+from Modules.module import ModuleBaseClass
 
 
-class WeatherService(ServiceBaseClass):
+class ExampleModule(ModuleBaseClass):
     """
-    A module to handle interaction between the robot and the vasttrafik API.
+    An example module.
     """
 
     def __init__(self, app, name, pepper_ip):
@@ -15,18 +15,22 @@ class WeatherService(ServiceBaseClass):
         Initialisation of module and event detection.
         """
         # Folder name on Pepper
-        folder_name = "weather"
+        folder_name = "example"
         # Superclass init call
-        super(WeatherService, self).__init__(app, name, pepper_ip, folder_name)
+        super(ExampleModule, self).__init__(app, name, pepper_ip, folder_name)
 
     def display_on_tablet(self, full_file_name):
         """
         Display file on Pepper's tablet
         :param full_file_name: file name including file ending
         """
-        super(WeatherService, self).display_on_tablet(full_file_name)
+        super(ExampleModule, self).display_on_tablet(full_file_name)
 
     def run(self):
+        """
+        Initiate dialog upon method call. Run until finished, then shutoff.
+        """
+        self.module_finished = False
         self.initiate_dialog()
         while not self.module_finished:
             time.sleep(1)
@@ -37,29 +41,20 @@ class WeatherService(ServiceBaseClass):
         Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
-            #self.dialog.deactivateTopic(self.topic)
-            #self.dialog.unloadTopic(self.topic)
-            self.dialog.unsubscribe(self.name)
-            print "Stopped dialog"
-        except RuntimeError:
-            pass
-        except AttributeError:
-            pass
-        try:
-            self.hide_tablet = True
-            if self.t is not None:
-                print "Main waiting for thread to die"
-                self.t.join()
             self.tablet.hideWebview()
             print "Tabletview stopped"
         except:
             pass
-        self.module_finished = False
 
     def initiate_dialog(self):
+        """
+        An example interaction
+        """
         self.tablet.hideWebview()
 
-        self.tts.say("It's sunny")
+        self.tts.say("Im running an example module")
 
         self.module_finished = True
+
+
 
