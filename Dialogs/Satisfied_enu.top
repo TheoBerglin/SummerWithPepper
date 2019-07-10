@@ -1,0 +1,7 @@
+topic: ~Satisfied()
+language: enu
+
+include:lexicon_enu.top
+
+u:(~yes) Perfetto $exit=1
+u:(~no) Okay

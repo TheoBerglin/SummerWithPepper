@@ -1,0 +1,15 @@
+topic: ~VasttrafikGreeting()
+language: enu
+
+include:Stops_enu.top
+include:lexicon_enu.top
+
+u:([quit exit]) Exiting module $exit=1
+u:([text "text input"]) Entering text input mode $new_view="trip_input.html"
+u:(["{See} next rides" "Rides" e:next_ride_click]) Sure, fetching rides $next_ride=1
+u:(["Trip" "Plan a trip" "Take me home" e:trip_click]) Sure mate! Where do you want to go?
+    u1:(_~arrStops) OK. To $1 From where? $arr_stop=$1
+        u2:(_~depStops) OK. From $1 to $arr_stop Correct $dep_stop=$1 $new_view="correct_trip_vasttrafik.html"
+            u3:([~yes e:correct_trip]) Great $trip=1
+            u3:([~no e:incorrect_trip]) Im so sorry, give me text input instead  $new_view="trip_input.html"
+        
