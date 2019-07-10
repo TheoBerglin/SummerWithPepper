@@ -46,7 +46,7 @@ class VasttrafikModule(ModuleBaseClass):
                 self.transfer_to_pepper(full_path)
                 self.tablet.showWebview(remote_path)
 
-                time.sleep(5)  # Update view with new data every 3 seconds
+                time.sleep(3)  # Update view with new data every 3 seconds
                 if self.hide_tablet:
                     print "Killing thread and hiding tablet"
                     self.tablet.hideWebview()
@@ -127,7 +127,7 @@ class VasttrafikModule(ModuleBaseClass):
         self.hide_tablet = False
         self.t = threading.Thread(target=self.display_on_tablet, args=(full_file_name, True))
         self.t.start()
-        time.sleep(5)
+        time.sleep(10)  # Let user interact with tablet for 10s before interrupting
 
         self.satisfied()
 
@@ -162,7 +162,7 @@ class VasttrafikModule(ModuleBaseClass):
             self.transfer_to_pepper(full_path)
 
             self.display_on_tablet(full_file_name, False)
-            time.sleep(10)
+            time.sleep(15)  # Let user interact with tablet for 15s before interrupting
             self.satisfied()
         except KeyError:
             error_string = 'I am sorry, something went wrong.' \
