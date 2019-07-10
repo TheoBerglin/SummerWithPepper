@@ -19,19 +19,18 @@ class WeatherService(ServiceBaseClass):
         # Superclass init call
         super(WeatherService, self).__init__(app, name, pepper_ip, folder_name)
 
-    def initiate_dialog(self):
-        self.tablet.hideWebview()
-
-        self.tts.say("It's sunny")
-
-        self.module_finished = True
-
     def display_on_tablet(self, full_file_name):
         """
         Display file on Pepper's tablet
         :param full_file_name: file name including file ending
         """
         super(WeatherService, self).display_on_tablet(full_file_name)
+
+    def run(self):
+        self.initiate_dialog()
+        while not self.module_finished:
+            time.sleep(1)
+        self.shutoff()
 
     def shutoff(self, *_args):
         """
@@ -57,8 +56,10 @@ class WeatherService(ServiceBaseClass):
             pass
         self.module_finished = False
 
-    def run(self):
-        self.initiate_dialog()
-        while not self.module_finished:
-            time.sleep(1)
-        self.shutoff()
+    def initiate_dialog(self):
+        self.tablet.hideWebview()
+
+        self.tts.say("It's sunny")
+
+        self.module_finished = True
+

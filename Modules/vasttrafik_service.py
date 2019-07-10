@@ -24,6 +24,74 @@ class VasttrafikService(ServiceBaseClass):
         # Thread initialization
         self.t = None
 
+    def display_on_tablet(self, full_file_name, update=False):
+        """
+        Display file on Pepper's tablet
+        :param full_file_name: file name including file ending
+        :param update: if view should be updated (only used with next rides)
+        """
+        self.tablet.enableWifi()
+        ip = self.tablet.robotIp()
+        remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
+        if update:
+            while True:
+                full_path = os.path.join(self.local_html_path, full_file_name)
+
+                file_name = full_file_name.split('.')[0]
+
+                print "Connecting to Vasttrafik and getting next rides"
+                self.vt.create_departure_html(file_name)
+                print "Download complete"
+
+                self.transfer_to_pepper(full_path)
+                self.tablet.showWebview(remote_path)
+
+                time.sleep(5)  # Update view with new data every 3 seconds
+                if self.hide_tablet:
+                    print "Killing thread and hiding tablet"
+                    self.tablet.hideWebview()
+                    break
+        else:
+            self.tablet.showWebview(remote_path)
+
+    def run(self):
+        self.module_finished = False
+        self.initiate_dialog()
+        while not self.module_finished:
+            time.sleep(1)
+        self.shutoff()
+
+    def shutoff(self, *_args):
+        """
+        Shutoff and unsubscribe to events.
+        """
+        try:
+            self.dialog.deactivateTopic(self.satisfied_topic)
+            self.dialog.unloadTopic(self.satisfied_topic)
+            print "Stopped satisfied dialog"
+        except AttributeError:
+            pass
+        except RuntimeError:
+            pass
+        try:
+            self.dialog.deactivateTopic(self.topic)
+            self.dialog.unloadTopic(self.topic)
+            self.dialog.unsubscribe(self.name)
+            print "Stopped main vasttrafik dialog"
+        except RuntimeError:
+            pass
+        except AttributeError:
+            pass
+        try:
+            self.hide_tablet = True
+            if self.t is not None:
+                print "Main waiting for thread to die"
+                self.t.join()
+            self.tablet.hideWebview()
+            print "Tabletview stopped"
+        except:
+            pass
+
     def initiate_dialog(self, *_args):
         self.tablet.hideWebview()
 
@@ -121,71 +189,3 @@ class VasttrafikService(ServiceBaseClass):
         while not self.module_finished:
             self.tts.say("Are you satisfied")
             time.sleep(5)
-
-    def display_on_tablet(self, full_file_name, update=False):
-        """
-        Display file on Pepper's tablet
-        :param full_file_name: file name including file ending
-        :param update: if view should be updated (only used with next rides)
-        """
-        self.tablet.enableWifi()
-        ip = self.tablet.robotIp()
-        remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
-        if update:
-            while True:
-                full_path = os.path.join(self.local_html_path, full_file_name)
-
-                file_name = full_file_name.split('.')[0]
-
-                print "Connecting to Vasttrafik and getting next rides"
-                self.vt.create_departure_html(file_name)
-                print "Download complete"
-
-                self.transfer_to_pepper(full_path)
-                self.tablet.showWebview(remote_path)
-
-                time.sleep(5)  # Update view with new data every 3 seconds
-                if self.hide_tablet:
-                    print "Killing thread and hiding tablet"
-                    self.tablet.hideWebview()
-                    break
-        else:
-            self.tablet.showWebview(remote_path)
-
-    def shutoff(self, *_args):
-        """
-        Shutoff and unsubscribe to events.
-        """
-        try:
-            self.dialog.deactivateTopic(self.satisfied_topic)
-            self.dialog.unloadTopic(self.satisfied_topic)
-            print "Stopped satisfied dialog"
-        except AttributeError:
-            pass
-        except RuntimeError:
-            pass
-        try:
-            self.dialog.deactivateTopic(self.topic)
-            self.dialog.unloadTopic(self.topic)
-            self.dialog.unsubscribe(self.name)
-            print "Stopped main vasttrafik dialog"
-        except RuntimeError:
-            pass
-        except AttributeError:
-            pass
-        try:
-            self.hide_tablet = True
-            if self.t is not None:
-                print "Main waiting for thread to die"
-                self.t.join()
-            self.tablet.hideWebview()
-            print "Tabletview stopped"
-        except:
-            pass
-
-    def run(self):
-        self.module_finished = False
-        self.initiate_dialog()
-        while not self.module_finished:
-            time.sleep(1)
-        self.shutoff()
