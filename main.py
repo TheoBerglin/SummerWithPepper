@@ -11,7 +11,7 @@ IP = "192.168.1.102"
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip", type=str, default=IP,
-                        help="Robot IP address. On robot or Local Naoqi: use '192.168.1.101'.")
+                        help="Robot IP address. On robot or Local Naoqi: use '192.168.1.102'.")
     parser.add_argument("--port", type=int, default=9559,
                         help="Naoqi port number")
 
