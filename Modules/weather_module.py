@@ -7,7 +7,7 @@ from Modules.module import ModuleBaseClass
 
 class WeatherModule(ModuleBaseClass):
     """
-    A module to handle interaction between the robot and the vasttrafik API.
+    A module to handle interaction between the robot and the weather API.
     """
 
     def __init__(self, app, name, pepper_ip):
