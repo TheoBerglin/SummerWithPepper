@@ -6,16 +6,31 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body onLoad=getInitialText()>
-<h2 id="correctHeader" href=test.html align="middle">What do you want to do?</h2>
+<h2 id="correctHeader" href=test.html align="middle">Here's the weather for the next 24h</h2>
 <table align="center">
     <tr>
         <td>
-            <input type="image" id="currWeather" src= alt="RIDES" width="300" height="300" align="left"/>
+            <input type="image" id="currWeather" src=alt="current" width="200" height="200" align="left"/>
+        </td>
+
+        <td>
+            <input type="image" id="2hweather" src=alt="2h" width="100" height="100" align="top"/>
+        </td>
+        <td>
+            <input type="image" id="8hweather" src=alt="8h" width="100" height="100" align="left"/>
+        </td>
+        <td>
+            <input type="image" id="14hweather" src=alt="14h" width="100" height="100" align="left"/>
+        </td>
+        <td>
+            <input type="image" id="20hweather" src=alt="20h" width="100" height="100" align="left"/>
         </td>
     </tr>
-    <script src="/libs/qimessaging/2/qimessaging.js"></script>
-    <script src="js/jquery-3.1.0.min.js"></script>
-    <script type="text/javascript" src="js/script_vasttrafik.js"></script>
+
+</table>
+<script src="/libs/qimessaging/2/qimessaging.js"></script>
+<script src="js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="js/script_vasttrafik.js"></script>
 </table>
 </body>
 </html>
