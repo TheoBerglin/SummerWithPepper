@@ -123,7 +123,7 @@ class SurveyModule(ModuleBaseClass):
         except RuntimeError:
             pass
         self.plot_pie_chart()
-        self.transfer_to_pepper(os.path.join(self.local_html_path, 'images', 'pie_chart.svg'))
+        self.transfer_image_to_pepper(os.path.join(self.local_html_path, 'images', 'pie_chart.svg'))
         self.display_on_tablet('survey_summary.html')
         self.subscribe_result_topic()
 
