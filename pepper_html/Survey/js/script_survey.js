@@ -19,42 +19,42 @@ try {
 }
 
 $(function () {
-  $('#vasttrafik').click(introduceVasttrafik);
-  $('#weather').click(introduceWeather);
-  $('#survey').click(introduceSurvey);
-  /*$('#vasttrafik2').click(introduceVasttrafik2);*/
+  $('#goodButton').click(goodButton);
+  $('#neutralButton').click(neutralButton);
+  $('#badButton').click(badButton);
+  $('#doneButton').click(doneButton);
 });
 
-function changeTitle(data) {
-  $('h1').text('Message received!')
-}
 
-function introduceVasttrafik() {
+function goodButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('vt', 1);
-  }, function (error) {
-    console.log(error);
-  })
-  /*
-  session.service('ALTextToSpeech').then(function (tts) {
-    tts.say('Do you want to plan a trip or see next departures?');
-  }, function (error) {
-    console.log(error);
-  })
-  */
-}
-
-function introduceWeather() {
-	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('weather', 1);
+		memory.raiseEvent('good_button_click', 1);
   }, function (error) {
     console.log(error);
   })
 }
 
-function introduceSurvey() {
+
+function neutralButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('survey', 1);
+		memory.raiseEvent('neutral_button_click', 1);
+  }, function (error) {
+    console.log(error);
+  })
+}
+
+
+function badButton() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('bad_button_click', 1);
+  }, function (error) {
+    console.log(error);
+  })
+}
+
+function doneButton() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('done_button_click', 1);
   }, function (error) {
     console.log(error);
   })

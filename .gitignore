@@ -108,3 +108,5 @@ venv.bak/
 departure.htm
 trip.htm
 live_test.htm
+survey_information.txt
+plot_test.py

@@ -1,0 +1,9 @@
+topic: ~Satisfied()
+language: enu
+
+include:lexicon_enu.top
+
+u:([Result "Show result"]) Hang on, creating results $show_result_trigger=1
+u:(["Good" "I liked it" "Nice" "It was nice" "Green" "Theo"]) $good_button_click=$1
+u:(["Neutral" "It was okey" "okey" "Yellow"]) $neutral_button_click=$1
+u:(["Bad" "Horrible" "I did not like it" "I hated it" "Red" "shit" "Adam" "Adas"]) $bad_button_click=$1
