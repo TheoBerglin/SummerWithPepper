@@ -27,19 +27,27 @@ class Weather:
         curr_temp = curr_weather.temperature
         curr_summ = curr_weather.summary
         curr_icon = curr_weather.icon
-        print curr_summ
-        print 'Temperature: %.2f C' % curr_temp
         temps = [curr_temp]
         icons = [curr_icon]
+        summ = [curr_summ]
+        hours = [curr_hour+2, curr_hour+8, curr_hour+14, curr_hour+20]
+        hours = [str(i%24) + ':00' for i in hours]
+        hours.insert(0, 'NOW')
         for i in range(4):
             data_point = forecast.hourly().data[6*i+2]
             temps.append(data_point.temperature)
             icons.append(data_point.icon)
+            summ.append(data_point.summary)
         filehandle = open("pepper_html/weather/weather.html")
         soup = BeautifulSoup(filehandle, 'html.parser')
         images = soup.find_all('input')
-        for idx, img in enumerate(images):
-            img['src'] = 'images/' + self.icon_dict[icons[idx]]
-        print soup.prettify()
-        with open("pepper_html/weather/output1.html", "w") as file:
+        texts = soup.find_all('b')
+        for idx in range(len(images)):
+            images[idx]['src'] = 'images/' + self.icon_dict[icons[idx]]
+            texts[3*idx].string = hours[idx]
+            texts[3*idx+1].string = summ[idx]
+            temp_string = str(temps[idx].__format__('.1f')) + ' deg'
+            texts[3*idx+2].string = temp_string
+
+        with open("pepper_html/weather/weather_test.html", "w") as file:
             file.write(str(soup))
