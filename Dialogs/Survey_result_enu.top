@@ -5,4 +5,4 @@ include:lexicon_enu.top
 
 
 u:([Survey "back to survey" "More survey" "Go back"]) Great going back to the survey $show_survey_trigger=1
-u:([Done exit "No more" "Thank you Pepper"]) Wow that is nice, I am exiting module $exit=1
+u:(["Thank you Pepper" "Thanks" "Bye Pepper"]) Wow that is nice, I am exiting module $exit=1
