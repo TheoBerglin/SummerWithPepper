@@ -1,7 +1,8 @@
 <div class="content">
 <table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01">
-		<tr class="darkblue_pane" style="color:Blue;font-weight:bold;">
+		<tr class="darkblue_pane" style="color:Black;font-weight:bold;font-size: 18px;">
 			<th align="left" scope="col">Line</th>
+			<th align="left scope="col">&nbsp</th>
 			<th align="left" scope="col">Direction</th>
 			<th align="left" scope="col">From</th>
 			<th align="left" scope="col">&nbsp</th>

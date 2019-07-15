@@ -104,10 +104,12 @@ class Vasttrafik:
         :param end_station: End station of the trip. Default Prinsgatan
         :return:
         """
-        self.trip_start = start_station
-        self.trip_end = end_station
-        start_id = self.client.get_stops_by_name(start_station)[0]['id']
-        end_id = self.client.get_stops_by_name(end_station)[0]['id']
+        start_details = self.client.get_stops_by_name(start_station)[0]
+        start_id = start_details['id']
+        self.trip_start = start_details['name'].split(',')[0]
+        end_details = self.client.get_stops_by_name(end_station)[0]
+        end_id = end_details['id']
+        self.trip_end = end_details['name'].split(',')[0]
         #try:
         self.trip = self.client.calculate_trip_stations(start_id, end_id, date=date, time=trip_time)['TripList']['Trip']
         self.create_trip_html()
@@ -123,7 +125,7 @@ class Vasttrafik:
         :return:
         """
         self.html_data = list()
-        self.add_html_data('<h2>From: %s To: %s</h2>' % (self.trip_start, self.trip_end))
+        self.add_html_data('<h2 align="center">From: %s To: %s</h2>' % (self.trip_start, self.trip_end))
         for trip in self.trip:
             if isinstance(trip['Leg'], list):
                 start_time = trip['Leg'][0]['Origin'].get('rtTime', trip['Leg'][0]['Origin']['time'])
@@ -140,6 +142,7 @@ class Vasttrafik:
             else:
                 self.add_trip_leg(trip['Leg'])
             self.add_html_data('</table>')
+            self.add_html_data('<br>')
             self.add_html_data('</div>')
         with open(os.path.dirname(os.path.abspath(__file__)) + '\\VasttrafikTemplates\\trip_script_field.txt', 'r') as script_field:
             for l in script_field:
@@ -165,7 +168,12 @@ class Vasttrafik:
         :return:
         """
         diff = self.calculate_time_difference(start_time, end_time)
-        self.add_html_data('<button class="collapsible" style="font-size: 16px;co">%s-%s<br>Travelling time: %s minutes</button>' % (start_time, end_time, diff))
+        start_diff = self.calculate_time_difference(datetime.datetime.now().strftime('%H:%M'), start_time)
+        if start_diff ==1:
+            tmp_minutes = "minute"
+        else:
+            tmp_minutes = "minutes"
+        self.add_html_data('<button class="collapsible" style="font-size: 16px;co"> Trip start in %s %s<br> Total travelling time: %s minutes (%s-%s)</button>' % (start_diff, tmp_minutes, diff, start_time, end_time))
 
     def add_trip_content_header(self):
         """ Add the content header for the trip collapsible button. Content is a table"""
@@ -185,8 +193,6 @@ class Vasttrafik:
         back_c = leg.get('bgColor', '#ffffff')
         name = leg.get('sname', '')
         direction = leg.get('direction', 'Walk')
-        #if leg['type'] == 'WALK':
-        #    direction = 'WALK'
 
         start_time = leg['Origin'].get('rtTime', leg['Origin']['time'])
         start_location = leg['Origin']['name']
@@ -195,13 +201,30 @@ class Vasttrafik:
         if start_location == end_location:
             # Walk from platform to platform at station
             return
+        if leg['type'] == 'WALK':
+            type_icon = 'walk.svg'
+        elif leg['type'] == 'TRAM':
+            type_icon = 'tram.svg'
+        elif leg['type'] == 'BOAT':
+            type_icon = 'boat.svg'
+        elif leg['type'] == 'TRAIN':
+            type_icon = 'train.svg'
+        else:
+            type_icon = 'bus.svg'
         self.add_html_data('<tr>')
-        self.add_html_data('<td align="center" style="color:%s;background-color:%s;">%s</td>' % (back_c, front_c, name))
-        self.add_html_data('<td >%s</td>' % direction)
-        self.add_html_data('<td >%s</td>' % start_location)
-        self.add_html_data('<td >%s&nbsp</td>' % start_time)
-        self.add_html_data('<td >%s</td>' % end_location)
-        self.add_html_data('<td >%s&nbsp</td>' % end_time)
+        if leg['type'] == 'WALK':
+            direction = ''
+            self.add_html_data('<td style="border:1px solid black;font-weight:bold;font-size: 16px">Walk</td>')
+            self.add_html_data('<td width="40"><img src="images/%s"></img></td>' % type_icon)
+        else:
+            self.add_html_data('<td align="center" style="color:%s;background-color:%s;border:1px solid black;font-weight:bold;font-size: 16px">%s </td>' % (back_c, front_c, name))
+            self.add_html_data('<td width="40"><img src="images/%s"></img></td>' % type_icon)
+        self.add_html_data('<td style="font-weight:bold;">%s</td>' % direction)
+
+        self.add_html_data('<td >%s</td>' % start_location.split(',')[0])
+        self.add_html_data('<td style="font-weight:bold;font-size=28px;">%s&nbsp</td>' % start_time)
+        self.add_html_data('<td >%s</td>' % end_location.split(',')[0])
+        self.add_html_data('<td style="font-weight:bold;font-size=24px;">%s&nbsp</td>' % end_time)
         self.add_html_data('<td >%s minutes</td>' % self.calculate_time_difference(start_time, end_time))
         self.add_html_data('</tr>')
 
@@ -272,6 +295,7 @@ class Vasttrafik:
             new_departure_data = list()
             for dep in departure_data:
                 # Add structure for combination of name+destination
+
                 if dep['sname'] not in found_combinations:
                     found_combinations[dep['sname']] = dict()
                 if dep['direction'] not in found_combinations[dep['sname']]:
@@ -300,7 +324,7 @@ class Vasttrafik:
         """
         self.add_html_data('<h2 align="center">%s</h2>' % station)
         self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01" align="center" style="border: 1px solid black;">')
-        self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;">')
+        self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;border:1px solid black;">')
         self.add_html_data('<th align="left" scope="col">Line</th>')
         self.add_html_data('<th align="left" scope="col">Destination</th>')
         self.add_html_data('<th align="left" scope="col">Next departure</th>')
@@ -334,7 +358,7 @@ class Vasttrafik:
             t2 = self.time_to_departure(t2)
         # Add html rows
         self.add_html_data('<tr>')
-        self.add_html_data('<td align="center" style="color:%s;background-color:%s;">%s</td>' % (back_c, front_c, name))
+        self.add_html_data('<td align="center" style="color:%s;background-color:%s;border:1px solid black;">%s</td>' % (back_c, front_c, name))
         self.add_html_data('<td >%s</td>' % direction)
         self.add_html_data('<td >%s</td>' % t1)
         self.add_html_data('<td >%s</td>' % t2)
@@ -395,7 +419,7 @@ if __name__ == '__main__':
     # v.extract_next_departure()
     html_name = 'departure'
     v.create_departure_html(html_name)
-    v.calculate_trip('Central station', 'Saltholmen')
+    v.calculate_trip('Boras', 'Ostra sjukhuset')
     #ref_id = v.trip['TripList']['Trip'][0]['Leg'][1]['JourneyDetailRef']['ref']
     #apa = v.client.get_journey_details(ref_id)
     print 'for debug'

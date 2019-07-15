@@ -13,6 +13,7 @@
   text-align: left;
   outline: none;
   font-size: 15px;
+  border-radius: 12px;
 }
 
 .active, .collapsible:hover {
@@ -25,6 +26,7 @@
   font-weight: bold;
   float: right;
   margin-left: 5px;
+  border-radius: 1em;
 }
 
 .active:after {
@@ -41,6 +43,7 @@
 
 th, td {
   padding: 10px;
+  font-family: "Times New Roman", Times, serif;
   <!--text-align: left;-->
 }
 </style>
