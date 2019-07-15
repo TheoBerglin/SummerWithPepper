@@ -1,0 +1,8 @@
+topic: ~Weather()
+language: enu
+
+include:lexicon_enu.top
+
+u:(e:location) Fetching weather for $location
+
+        

@@ -5,6 +5,7 @@ import time
 import os
 from Modules.module import ModuleBaseClass
 from Applications.weather import Weather
+from geopy.geocoders import Nominatim
 
 
 class WeatherModule(ModuleBaseClass):
@@ -63,11 +64,31 @@ class WeatherModule(ModuleBaseClass):
     def initiate_dialog(self):
         self.tablet.hideWebview()
 
-        self.wt.get_current_weather()
-        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_test.html'
-        self.transfer_to_pepper(path)
-        self.display_on_tablet('weather_test.html')
-        time.sleep(5)
+        # Load dialog and display intro screen
+        self.topic = self.dialog.loadTopic("/home/nao/Weather_enu.top")
+        self.dialog.activateTopic(self.topic)
+        self.dialog.subscribe(self.name)
 
-        self.module_finished = True
+        # Subscribe to events raised on button click
+        self.location_subscriber = self.memory.subscriber("location")
+        self.location_id = self.location_subscriber.signal.connect(self.get_weather)
+
+        self.display_on_tablet('weather_intro.html')
+
+    def get_weather(self, *_args):
+        loc = self.memory.getData("location")
+
+
+        geolocator = Nominatim(user_agent="specify_your_app_name_here")
+        location = geolocator.geocode(loc)
+        lat = location.latitude
+        long=  location.longitude
+
+        #self.wt.get_current_weather()
+        #path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_test.html'
+        #self.transfer_to_pepper(path)
+        #self.display_on_tablet('weather_test.html')
+        #time.sleep(5)
+
+        #self.module_finished = True
 
