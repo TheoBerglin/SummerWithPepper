@@ -41,8 +41,8 @@ class WeatherModule(ModuleBaseClass):
         Shutoff and unsubscribe to events. Trigger ModuleFinished event.
         """
         try:
-            #self.dialog.deactivateTopic(self.topic)
-            #self.dialog.unloadTopic(self.topic)
+            self.dialog.deactivateTopic(self.topic)
+            self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
             print "Stopped dialog"
         except RuntimeError:
@@ -71,6 +71,8 @@ class WeatherModule(ModuleBaseClass):
         # Subscribe to events raised on button click
         self.location_subscriber = self.memory.subscriber("location")
         self.location_id = self.location_subscriber.signal.connect(self.get_weather)
+        self.day_subscriber = self.memory.subscriber("day_forecast")
+        self.day_id = self.day_subscriber.signal.connect(self.day_forecast)
 
         self.display_on_tablet('weather_intro.html')
 
@@ -87,3 +89,6 @@ class WeatherModule(ModuleBaseClass):
 
         self.module_finished = True
 
+    def day_forecast(self, *_args):
+        self.tablet.hideWebview()
+        print "button pressed"
