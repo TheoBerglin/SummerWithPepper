@@ -5,7 +5,6 @@ import time
 import os
 from Modules.module import ModuleBaseClass
 from Applications.weather import Weather
-from geopy.geocoders import Nominatim
 
 
 class WeatherModule(ModuleBaseClass):
@@ -76,19 +75,15 @@ class WeatherModule(ModuleBaseClass):
         self.display_on_tablet('weather_intro.html')
 
     def get_weather(self, *_args):
+        self.tablet.hideWebview()
+
         loc = self.memory.getData("location")
 
+        self.wt.get_current_weather(loc)
+        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_test.html'
+        self.transfer_to_pepper(path)
+        self.display_on_tablet('weather_test.html')
+        time.sleep(5)
 
-        geolocator = Nominatim(user_agent="specify_your_app_name_here")
-        location = geolocator.geocode(loc)
-        lat = location.latitude
-        long=  location.longitude
-
-        #self.wt.get_current_weather()
-        #path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_test.html'
-        #self.transfer_to_pepper(path)
-        #self.display_on_tablet('weather_test.html')
-        #time.sleep(5)
-
-        #self.module_finished = True
+        self.module_finished = True
 

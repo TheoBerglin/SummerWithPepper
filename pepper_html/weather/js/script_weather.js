@@ -19,22 +19,13 @@ try {
 }
 
 $(function () {
-  $('#rideButton').click(rideButton);
-  $('#tripButton').click(tripButton);
+  $('#dayForecast').click(dayForecastButton);
 });
 
 
-function rideButton() {
+function dayForecastButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('next_ride_click', 1);
-  }, function (error) {
-    console.log(error);
-  })
-}
-
-function tripButton() {
-	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('trip_click', 1);
+		memory.raiseEvent('day_forecast', 1);
   }, function (error) {
     console.log(error);
   })
