@@ -298,8 +298,8 @@ class Vasttrafik:
         :param station: The departures are from this station
         :return:
         """
-        self.add_html_data('<h2>%s</h2>' % station)
-        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01">')
+        self.add_html_data('<h2 align="center">%s</h2>' % station)
+        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01" align="center" style="border: 1px solid black;">')
         self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;">')
         self.add_html_data('<th align="left" scope="col">Line</th>')
         self.add_html_data('<th align="left" scope="col">Destination</th>')
@@ -370,6 +370,7 @@ class Vasttrafik:
         :param html_template: template for which data should be appended
         :return:
         """
+        print r'%s/%s.htm' % (self.save_path, name)
         with open(r'%s/%s.htm' % (self.save_path, name), 'w+') as output_file:
             # Write template
             with open(os.path.dirname(os.path.abspath(__file__)) +'\\VasttrafikTemplates\\%s' % html_template, 'r') as template:
