@@ -3,15 +3,12 @@
 <head>
 <style>
 table {
-  color:#333333;width:470px;border-collapse:collapse;
+  color:#333333;
+  width:570px;
+  border: 1px solid;
 }
-table, th, td {
- <!-- border: 1px solid black;-->
-  <!--border-collapse: collapse;-->
-}
-th, td {
-  padding: 15px;
-  <!--text-align: left;-->
+table#t01 tr {
+    padding: 8px;
 }
 table#t01 tr:nth-child(even) {
   background-color: #eee;
@@ -22,6 +19,8 @@ table#t01 tr:nth-child(odd) {
 table#t01 th {
   background-color: #00688b;
   color: white;
+  padding: 15px;
+  border:0px solid black;
 }
 </style>
 </head>

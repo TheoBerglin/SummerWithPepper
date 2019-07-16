@@ -322,12 +322,13 @@ class Vasttrafik:
         :param station: The departures are from this station
         :return:
         """
-        self.add_html_data('<h2 align="center">%s</h2>' % station)
-        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01" align="center" style="border: 1px solid black;">')
-        self.add_html_data('<tr class="darkblue_pane" style="color:Blue;font-weight:bold;border:1px solid black;">')
+        self.add_html_data('<h2 align="center">%s</h2>' % station.split(',')[0])
+        self.add_html_data('<table title="Forecasts:" class="tableMenuCell" cellspacing="0" cellpadding="4" id="t01" align="center">')
+        self.add_html_data('<tr class="darkblue_pane">')
         self.add_html_data('<th align="left" scope="col">Line</th>')
+        self.add_html_data('<th scope="col"></th>')
         self.add_html_data('<th align="left" scope="col">Destination</th>')
-        self.add_html_data('<th align="left" scope="col">Next departure</th>')
+        self.add_html_data('<th align="left" scope="col">Next</th>')
         self.add_html_data('<th align="left" scope="col">Afterwards</th>')
         self.add_html_data('</tr>')
 
@@ -342,6 +343,16 @@ class Vasttrafik:
         back_c = departure['1']['bgColor']
         name = departure['1']['sname']
         direction = departure['1']['direction']
+        if departure['1']['type'] == 'WALK':
+            type_icon = 'walk.svg'
+        elif departure['1']['type'] == 'TRAM':
+            type_icon = 'tram.svg'
+        elif departure['1']['type'] == 'BOAT':
+            type_icon = 'boat.svg'
+        elif departure['1']['type'] == 'TRAIN':
+            type_icon = 'train.svg'
+        else:
+            type_icon = 'bus.svg'
         if 'rtTime' in departure['1']:
             t1 = departure['1']['rtTime']
         else:
@@ -358,10 +369,11 @@ class Vasttrafik:
             t2 = self.time_to_departure(t2)
         # Add html rows
         self.add_html_data('<tr>')
-        self.add_html_data('<td align="center" style="color:%s;background-color:%s;border:1px solid black;">%s</td>' % (back_c, front_c, name))
+        self.add_html_data('<td align="center" style="color:%s;background-color:%s;border:0.5px solid black;">%s</td>' % (back_c, front_c, name))
+        self.add_html_data('<td ><img src="images/%s" width="40"></td>' % type_icon)
         self.add_html_data('<td >%s</td>' % direction)
-        self.add_html_data('<td >%s</td>' % t1)
-        self.add_html_data('<td >%s</td>' % t2)
+        self.add_html_data('<td align="center" style="font-size:16px;font-weight:bold;">%s</td>' % t1)
+        self.add_html_data('<td align="center" style="font-size:16px;font-weight:bold;">%s</td>' % t2)
         self.add_html_data('</tr>')
 
     @staticmethod
