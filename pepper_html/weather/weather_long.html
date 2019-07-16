@@ -1,101 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        td {
+        width: "50";
+        border-right: 1px solid black;
+        }
+    </style>
     <meta charset="utf-8">
-    <title>Pepper Form</title>
+    <title>Weather 5-day forecast</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body onLoad=getInitialText()>
 <h2 id="correctHeader" href=test.html align="middle">Here's the weather for the next 24h</h2>
-<table align="center" border="1">
+<table align="center" style="border:0.5px solid black;" >
     <tr>
-        <td width="70">
+        <td width="50" >
             <p align="center"><b id="day1">
 
             </b></p>
+
+        </td>
+
+        <td width="50">
+            <p align="center"><b id="day2">
+
+            </b></p>
+
+        </td>
+
+        <td width="50">
+            <p align="center"><b id="day3">
+
+            </b></p>
+
+        </td>
+
+        <td width="50">
+            <p align="center"><b id="day4">
+
+            </b></p>
+
+        </td>
+
+        <td width="50">
+            <p align="center"><b id="day5">
+
+            </b></p>
+
+        </td>
+    </tr>
+    <tr>
+        <td>
             <p align="center" id="summ1">
 
             </p>
-            <input type="image" id="curr" src= alt="current" width="150" height="150" align="center"/>
 
+
+        </td>
+
+        <td>
+            <p align="center" id="summ2">
+
+            </p>
+
+        </td>
+
+        <td>
+            <p align="center" id="summ3">
+
+            </p>
+
+        </td>
+
+        <td>
+            <p align="center" id="summ4">
+
+            </p>
+
+        </td>
+        <td>
+            <p align="center" id="summ5">
+
+            </p>
+
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="image" id="curr" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td>
+            <input type="image" id="1d" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td>
+            <input type="image" id="2d" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td>
+             <input type="image" id="3d" src=alt="current" width="150" height="150" align="center"/>
+
+
+        </td>
+        <td>
+            <input type="image" id="4d" src=alt="current" width="150" height="150" align="center"/>
+
+
+        </td>
+
+    </tr>
+    <tr>
+        <td>
             <p align="center"><b id="templow1">
 
             </b></p>
+
+        </td>
+        <td>
+
+            <p align="center"><b id="templow2">
+
+            </b></p>
+
+        </td>
+        <td>
+
+            <p align="center"><b id="templow3">
+
+            </b></p>
+
+        </td>
+        <td>
+            <p align="center"><b id="templow4">
+
+            </b></p>
+
+        </td>
+        <td>
+            <p align="center"><b id="templow5">
+
+            </b></p>
+
+        </td>
+
+    </tr>
+    <tr>
+        <td>
             <p align="center"><b id="temphigh1">
 
             </b></p>
         </td>
 
-        <td width="70">
-            <p align="center"><b id="day2">
-
-            </b></p>
-            <p align="center" id="summ2">
-
-            </p>
-            <input type="image" id="1d" src=alt="current" width="150" height="150" align="center"/>
-
-            <p align="center"><b id="templow2">
-
-            </b></p>
+        <td>
             <p align="center"><b id="temphigh2">
 
             </b></p>
         </td>
-
-        <td width="70">
-            <p align="center"><b id="day3">
-
-            </b></p>
-            <p align="center" id="summ3">
-
-            </p>
-            <input type="image" id="2d" src=alt="current" width="150" height="150" align="center"/>
-
-            <p align="center"><b id="templow3">
-
-            </b></p>
+        <td>
             <p align="center"><b id="temphigh3">
 
             </b></p>
         </td>
-
-        <td width="70">
-            <p align="center"><b id="day4">
-
-            </b></p>
-            <p align="center" id="summ4">
-
-            </p>
-            <input type="image" id="3d" src=alt="current" width="150" height="150" align="center"/>
-
-            <p align="center"><b id="templow4">
-
-            </b></p>
+        <td>
             <p align="center"><b id="temphigh4">
 
             </b></p>
         </td>
-
-        <td width="70">
-            <p align="center"><b id="day5">
-
-            </b></p>
-            <p align="center" id="summ5">
-
-            </p>
-            <input type="image" id="4d" src=alt="current" width="150" height="150" align="center"/>
-
-            <p align="center"><b id="templow5">
-
-            </b></p>
+        <td>
             <p align="center"><b id="temphigh5">
 
             </b></p>
         </td>
 
-
     </tr>
+</table>
+<br>
+<br>
+<table align="center">
+
+    <tr>
+        <td>
+            <input type="image" id="dayForecast" src="images/8h_forecast.png" alt="day" width="350" height="100"/>
+        </td>
+    </tr>
+
 </table>
 
 <script src="/libs/qimessaging/2/qimessaging.js"></script>

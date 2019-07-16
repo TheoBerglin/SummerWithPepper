@@ -2,6 +2,7 @@ import forecastio
 from datetime import datetime
 from bs4 import BeautifulSoup
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 import re
 
 
@@ -9,16 +10,16 @@ class Weather:
 
     def __init__(self):
         self.key = 'ed968a36266723f284f2caeace939fba'
-        self.icon_dict = {'clear-day': 'clear.png',
-                          'clear-night': 'clear.png',
-                          'rain': 'rain.png',
-                          'snow': 'snow.png',
-                          'sleet': 'snow.png',
-                          'wind': 'cloudy.png',  # Change icon
-                          'fog': 'cloudy.png',  # Change icon
-                          'cloudy': 'cloudy.png',
-                          'partly-cloudy-day': 'partly_cloudy.png',
-                          'partly-cloudy-night': 'partly_cloudy.png'}  # Add night
+        self.icon_dict = {'clear-day': 'clear_day.svg',
+                          'clear-night': 'clear_night.svg',
+                          'rain': 'rainy.svg',
+                          'snow': 'snowy.svg',
+                          'sleet': 'sleet.svg',
+                          'wind': 'windy.svg',
+                          'fog': 'fog.svg',
+                          'cloudy': 'cloudy.svg',
+                          'partly-cloudy-day': 'partly_cloudy_day.svg',
+                          'partly-cloudy-night': 'partly_cloudy_night.svg'}
         self.day_conv = {0: 'Monday',
                          1: 'Tuesday',
                          2: 'Wednesday',
@@ -27,9 +28,16 @@ class Weather:
                          5: 'Saturday',
                          6: 'Sunday'}
 
-    def get_weather(self, loc):
-        geolocator = Nominatim(user_agent="weather-module")
-        location = geolocator.geocode(loc)
+    def geocode_me(self, location):
+        try:
+            geolocator = Nominatim(user_agent="weather-module")
+            return geolocator.geocode(location)
+        except GeocoderTimedOut:
+            print "caught time out"
+            return self.geocode_me(location)
+
+    def get_forecast(self, loc):
+        location = self.geocode_me(loc)
         lat = location.latitude
         long = location.longitude
 
@@ -37,11 +45,11 @@ class Weather:
         return forecast
 
     def get_current_weather(self, loc):
-        forecast = self.get_weather(loc)
+        forecast = self.get_forecast(loc)
         self.create_current_weather_page(forecast, loc)
 
     def get_future_weather(self, loc):
-        forecast = self.get_weather(loc)
+        forecast = self.get_forecast(loc)
         self.create_future_weather_page(forecast, loc)
 
     def create_current_weather_page(self, forecast, loc):
@@ -79,7 +87,7 @@ class Weather:
 
         soup.h2.string = 'Here is the weather in %s for the next 8h' % loc
         # Save file
-        with open("pepper_html/weather/weather_test.html", "w") as file:
+        with open("pepper_html/weather/weather_current.html", "w") as file:
             file.write(str(soup.prettify()))
 
     def create_future_weather_page(self, forecast, loc):
@@ -115,7 +123,7 @@ class Weather:
         text_temp_low = soup.find_all(id=re.compile('templow'))
         text_temp_high = soup.find_all(id=re.compile('temphigh'))
 
-        for idx in range(len(images)):
+        for idx in range(len(images)-1  ):
             images[idx]['src'] = 'images/' + self.icon_dict[icons[idx]]
             text_days[idx].string = day[idx]
             text_summary[idx].string = summaries[idx]

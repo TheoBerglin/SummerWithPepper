@@ -79,16 +79,23 @@ class WeatherModule(ModuleBaseClass):
     def get_weather(self, *_args):
         self.tablet.hideWebview()
 
-        loc = self.memory.getData("location")
+        self.loc = self.memory.getData("location")
 
-        self.wt.get_current_weather(loc)
-        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_test.html'
+        self.wt.get_current_weather(self.loc)
+        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_current.html'
         self.transfer_to_pepper(path)
-        self.display_on_tablet('weather_test.html')
-        time.sleep(5)
+        self.display_on_tablet('weather_current.html')
+        time.sleep(15)
 
         self.module_finished = True
 
     def day_forecast(self, *_args):
         self.tablet.hideWebview()
         print "button pressed"
+        self.wt.get_future_weather(self.loc)
+        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_day.html'
+        self.transfer_to_pepper(path)
+        self.display_on_tablet('weather_day.html')
+        time.sleep(15)
+
+        self.module_finished = True
