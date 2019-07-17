@@ -91,7 +91,8 @@ class Weather:
             temp_string = str(temps[idx].__format__('.0f')) + ' deg'
             texts[2 * idx + 1].string = temp_string
 
-        soup.h2.string = '8-hour forecast: %s' % loc
+        loc_string = loc[0].upper() + loc[1:]
+        soup.h2.string = '%s: 8-hour forecast' % loc_string
         # Save file
         with open("pepper_html/weather/weather_hour.html", "w") as file:
             file.write(str(soup.prettify()))
@@ -139,7 +140,8 @@ class Weather:
             temp_high_string = str(temps_high[idx].__format__('.0f')) + ' deg'
             text_temp_high[idx].string = 'High: ' + temp_high_string
 
-        soup.h2.string = '5-day forecast: %s' % loc
+        loc_string = loc[0].upper() + loc[1:]
+        soup.h2.string = '%s: 5-day forecast' % loc_string
         # Save file
         with open("pepper_html/weather/weather_day.html", "w") as file:
             file.write(str(soup.prettify()))
