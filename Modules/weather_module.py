@@ -70,24 +70,23 @@ class WeatherModule(ModuleBaseClass):
 
         # Subscribe to events raised on button click
         self.location_subscriber = self.memory.subscriber("location")
-        self.location_id = self.location_subscriber.signal.connect(self.get_weather)
+        self.location_id = self.location_subscriber.signal.connect(self.hour_forecast)
         self.day_subscriber = self.memory.subscriber("day_forecast")
         self.day_id = self.day_subscriber.signal.connect(self.day_forecast)
+        self.hour_subscriber = self.memory.subscriber("hour_forecast")
+        self.hour_id = self.hour_subscriber.signal.connect(self.hour_forecast)
 
         self.display_on_tablet('weather_intro.html')
 
-    def get_weather(self, *_args):
+    def hour_forecast(self, *_args):
         self.tablet.hideWebview()
 
         self.loc = self.memory.getData("location")
 
         self.wt.get_current_weather(self.loc)
-        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_current.html'
+        path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_hour.html'
         self.transfer_to_pepper(path)
-        self.display_on_tablet('weather_current.html')
-        time.sleep(15)
-
-        self.module_finished = True
+        self.display_hour_forecast()
 
     def day_forecast(self, *_args):
         self.tablet.hideWebview()
@@ -99,3 +98,6 @@ class WeatherModule(ModuleBaseClass):
         time.sleep(15)
 
         self.module_finished = True
+
+    def display_hour_forecast(self, *_args):
+        self.display_on_tablet('weather_hour.html')
