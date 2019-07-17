@@ -177,9 +177,12 @@ class VasttrafikModule(ModuleBaseClass):
         :return:
         """
         # Unload main dialog
-        self.dialog.deactivateTopic(self.topic)
-        self.dialog.unloadTopic(self.topic)
-
+        try:
+            self.dialog.deactivateTopic(self.topic)
+            self.dialog.unloadTopic(self.topic)
+        except RuntimeError:
+            print 'Could not unload topic'
+            return
         # Load satisfied dialog
         self.satisfied_topic = self.dialog.loadTopic("/home/nao/Satisfied_enu.top")
         self.dialog.activateTopic(self.satisfied_topic)
