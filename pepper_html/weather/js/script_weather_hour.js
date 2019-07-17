@@ -26,7 +26,7 @@ $(function () {
 
 function dayForecastButton() {
 	session.service('ALMemory').then(function (memory) {
-		memory.raiseEvent('day_forecast', 1);
+		memory.raiseEvent('new_view', 'weather_day.html');
   }, function (error) {
     console.log(error);
   })

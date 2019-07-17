@@ -27,6 +27,8 @@ class Weather:
                          4: 'Friday',
                          5: 'Saturday',
                          6: 'Sunday'}
+        self.last_call = {'time': datetime(1, 1, 1),
+                          'location': ''}
 
     def geocode_me(self, location):
         try:
@@ -37,19 +39,23 @@ class Weather:
             return self.geocode_me(location)
 
     def get_forecast(self, loc):
-        location = self.geocode_me(loc)
-        lat = location.latitude
-        long = location.longitude
+        curr_time = datetime.now()
+        time_diff = curr_time - self.last_call['time']
+        # Only get new weather if 5min has passed since last call or a new location has been requested
+        if time_diff.seconds > 300 or self.last_call['location'] != loc:
+            location = self.geocode_me(loc)
+            lat = location.latitude
+            long = location.longitude
 
-        forecast = forecastio.load_forecast(self.key, lat, long, units='si')
-        return forecast
+            forecast = forecastio.load_forecast(self.key, lat, long, units='si')
+            self.last_call['time'] = datetime.now()
+            self.last_call['location'] = loc
+            self.forecast = forecast
+        return self.forecast
 
     def get_current_weather(self, loc):
         forecast = self.get_forecast(loc)
         self.create_current_weather_page(forecast, loc)
-
-    def get_future_weather(self, loc):
-        forecast = self.get_forecast(loc)
         self.create_future_weather_page(forecast, loc)
 
     def create_current_weather_page(self, forecast, loc):
@@ -73,7 +79,7 @@ class Weather:
             icons.append(data_point.icon)
 
         # Get template file
-        filehandle = open("pepper_html/weather/weather_short.html")
+        filehandle = open("pepper_html/weather/weather_hour_template.html")
         soup = BeautifulSoup(filehandle, 'html.parser')
 
         # Some ugly html coding
@@ -113,7 +119,7 @@ class Weather:
         day.insert(0, 'Today')
 
         # Get template file
-        filehandle = open("pepper_html/weather/weather_long.html")
+        filehandle = open("pepper_html/weather/weather_day_template.html")
         soup = BeautifulSoup(filehandle, 'html.parser')
 
         # Some ugly html coding
