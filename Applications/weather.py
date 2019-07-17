@@ -79,7 +79,7 @@ class Weather:
         # Some ugly html coding
         images = soup.find_all('input')
         texts = soup.find_all('b')
-        for idx in range(len(images)-1):
+        for idx in range(len(images)-2):  # Dont loop through buttons
             images[idx]['src'] = 'images/' + self.icon_dict[icons[idx]]
             texts[2 * idx].string = hours[idx]
             temp_string = str(temps[idx].__format__('.0f')) + ' deg'
@@ -123,7 +123,7 @@ class Weather:
         text_temp_low = soup.find_all(id=re.compile('templow'))
         text_temp_high = soup.find_all(id=re.compile('temphigh'))
 
-        for idx in range(len(images)-1  ):
+        for idx in range(len(images)-2):  # Dont loop through buttons
             images[idx]['src'] = 'images/' + self.icon_dict[icons[idx]]
             text_days[idx].string = day[idx]
             text_summary[idx].string = summaries[idx]

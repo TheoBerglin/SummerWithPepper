@@ -20,12 +20,21 @@ try {
 
 $(function () {
   $('#dayForecast').click(dayForecastButton);
+  $('#newSearch').click(newSearchButton);
 });
 
 
 function dayForecastButton() {
 	session.service('ALMemory').then(function (memory) {
 		memory.raiseEvent('day_forecast', 1);
+  }, function (error) {
+    console.log(error);
+  })
+}
+
+function newSearchButton() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('new_view', 'weather_intro.html');
   }, function (error) {
     console.log(error);
   })
