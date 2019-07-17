@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Weather 5-day forecast</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body onLoad=getInitialText()>
+<h2 id="correctHeader" href=test.html align="middle">Here's the weather for the next 24h</h2>
+<table align="center" style="border:1px solid black;" >
+    <tr>
+        <td width="50" style="border-right:1px solid black;">
+            <p align="center"><b id="day1">
+
+            </b></p>
+
+        </td>
+
+        <td width="50" style="border-right:1px solid black;">
+            <p align="center"><b id="day2">
+
+            </b></p>
+
+        </td>
+
+        <td width="50" style="border-right:1px solid black;">
+            <p align="center"><b id="day3">
+
+            </b></p>
+
+        </td>
+
+        <td width="50" style="border-right:1px solid black;">
+            <p align="center"><b id="day4">
+
+            </b></p>
+
+        </td>
+
+        <td width="50">
+            <p align="center"><b id="day5">
+
+            </b></p>
+
+        </td>
+    </tr>
+    <tr>
+        <td style="border-right:1px solid black;">
+            <p align="center" id="summ1">
+
+            </p>
+
+
+        </td>
+
+        <td style="border-right:1px solid black;">
+            <p align="center" id="summ2">
+
+            </p>
+
+        </td>
+
+        <td style="border-right:1px solid black;">
+            <p align="center" id="summ3">
+
+            </p>
+
+        </td>
+
+        <td style="border-right:1px solid black;">
+            <p align="center" id="summ4">
+
+            </p>
+
+        </td>
+        <td>
+            <p align="center" id="summ5">
+
+            </p>
+
+        </td>
+    </tr>
+    <tr>
+        <td align="center" style="border-right:1px solid black;">
+            <input type="image" id="curr" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td align="center" style="border-right:1px solid black;">
+            <input type="image" id="1d" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td align="center" style="border-right:1px solid black;">
+            <input type="image" id="2d" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td align="center" style="border-right:1px solid black;">
+             <input type="image" id="3d" src=alt="current" width="150" height="150" align="center"/>
+
+        </td>
+        <td align="center">
+            <input type="image" id="4d" src=alt="current" width="150" height="150" align="center"/>
+
+
+        </td>
+
+    </tr>
+    <tr>
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="templow1">
+
+            </b></p>
+
+        </td>
+        <td style="border-right:1px solid black;">
+
+            <p align="center"><b id="templow2">
+
+            </b></p>
+
+        </td>
+        <td style="border-right:1px solid black;">
+
+            <p align="center"><b id="templow3">
+
+            </b></p>
+
+        </td>
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="templow4">
+
+            </b></p>
+
+        </td>
+        <td>
+            <p align="center"><b id="templow5">
+
+            </b></p>
+
+        </td>
+
+    </tr>
+    <tr>
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="temphigh1">
+
+            </b></p>
+        </td>
+
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="temphigh2">
+
+            </b></p>
+        </td>
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="temphigh3">
+
+            </b></p>
+        </td>
+        <td style="border-right:1px solid black;">
+            <p align="center"><b id="temphigh4">
+
+            </b></p>
+        </td>
+        <td>
+            <p align="center"><b id="temphigh5">
+
+            </b></p>
+        </td>
+
+    </tr>
+</table>
+<table cellpadding="40px" align="center">
+
+    <tr>
+        <td >
+            <input type="image" id="hourForecast" src="images/clock.svg" alt="hour" width="100" height="100"/>
+        </td>
+        <td>
+            <input type="image" id="newSearch" src="images/search.svg" alt="search" width="100" height="100"/>
+        </td>
+    </tr>
+
+</table>
+
+<script src="/libs/qimessaging/2/qimessaging.js"></script>
+<script src="js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="js/script_weather_day.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+topic: ~Weather()
+language: enu
+
+include:lexicon_enu.top
+
+u:([quit exit]) Exiting module $exit=1
+u:(e:location) Fetching weather for $location
+
+        
