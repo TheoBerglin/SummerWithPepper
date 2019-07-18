@@ -74,6 +74,8 @@ class IMDBModule(ModuleBaseClass):
         self.tablet.hideWebview()
 
         self.imdb.random_pop()
-        random_pop_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/random_pop.html'
+        random_pop_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/movie.html'
         self.transfer_to_pepper(random_pop_path)
-        self.display_on_tablet('random_pop.html')
+        poster_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/images/movie_poster.jpg'
+        self.transfer_to_pepper(poster_path)
+        self.display_on_tablet('movie.html')
