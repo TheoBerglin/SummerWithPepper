@@ -1,0 +1,16 @@
+topic: ~VasttrafikGreeting()
+language: enu
+
+include:Stops_enu.top
+include:lexicon_enu.top
+
+u:(["BBC news" "BBC international"]) Getting a news story from BBC news $news_clicked=bbc
+u:(["BBC tech" "BBC technology"]) Getting a news story from BBC tech $news_clicked=bbc_tech
+u:(["BBC business"]) Getting a news story from BBC business $news_clicked=bbc_business
+u:(["fotbollskanalen" ]) Getting a news story from fotbollskanalen $news_clicked=fotbollskanalen
+u:(["fox" "fox news"]) Getting a news story from fox $news_clicked=fox
+u:(["reuters"]) Getting a news story from reuters $news_clicked=reuters
+u:(["cbn" "Christian Broadcasting Network"]) Getting a news story from CBN $news_clicked=cbn
+u:(["cnn" "Cable News Network"]) Getting a news story from cnn $news_clicked=cnn
+u:(["done" "go back"]) $exit_button_clicked=1
+

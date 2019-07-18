@@ -6,4 +6,5 @@ include:lexicon_enu.top
 #Add module dialogs here
 u:([Planner Vesttrafik "v t" Commute Traffic e:vt]) Starting vesttrafik $mod_to_run=VasttrafikModule   
 u:([Weather e:weather]) Starting weather $mod_to_run=WeatherModule
-
+u:([Survey e:survey]) Starting survey application $mod_to_run=SurveyModule
+u:(["News" e:news]) Starting news application $mod_to_run=NewsModule

@@ -22,6 +22,7 @@ $(function () {
   $('#vasttrafik').click(introduceVasttrafik);
   $('#weather').click(introduceWeather);
   $('#survey').click(introduceSurvey);
+  $('#news').click(introduceNews);
   /*$('#vasttrafik2').click(introduceVasttrafik2);*/
 });
 
@@ -55,6 +56,14 @@ function introduceWeather() {
 function introduceSurvey() {
 	session.service('ALMemory').then(function (memory) {
 		memory.raiseEvent('survey', 1);
+  }, function (error) {
+    console.log(error);
+  })
+}
+
+function introduceNews() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('news', 1);
   }, function (error) {
     console.log(error);
   })

@@ -6,6 +6,7 @@ from Modules.humangreeter_module import HumanGreeter
 from Modules.vasttrafik_module import VasttrafikModule
 from Modules.weather_module import WeatherModule
 from Modules.survey_module import SurveyModule
+from Modules.news_module import NewsModule
 IP = "192.168.1.102"
 
 if __name__ == '__main__':

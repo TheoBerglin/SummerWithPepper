@@ -1,0 +1,8 @@
+bbc : http://feeds.bbci.co.uk/news/rss.xml?edition=int
+fotbollskanalen : https://www.fotbollskanalen.se/rss/
+cbn : http://www.cbn.com/cbnnews/world/feed/
+reuters : http://feeds.reuters.com/Reuters/worldNews
+bbc_tech : http://feeds.bbci.co.uk/news/technology/rss.xml
+bbc_business : http://feeds.bbci.co.uk/news/business/rss.xml
+fox : http://feeds.foxnews.com/foxnews/most-popular
+cnn : http://rss.cnn.com/rss/edition.rss
