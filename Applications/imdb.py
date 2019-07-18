@@ -4,6 +4,31 @@ import dask.dataframe as dd
 from omdb import OMDBClient
 
 
+class Imbd:
+
+    def __init__(self):
+        self.api_key = '303b365e'
+        self.nbr_vote_pop = 25000
+        self.df = pd.read_csv('data/data_fixed.csv')
+
+    def random_pop(self):
+        df_pop = self.df[self.df['numVotes'] > self.nbr_vote_pop]
+        df_pop_sorted = df_pop.sort_values('averageRating', ascending=False)
+        idx = random.randrange(500)  # Choose from the top 500
+        id = df_pop_sorted.iloc[idx]['tconst']
+        movie_data = self.get_api_data(id)
+        movie_desc = movie_data['plot']
+        movie_poster_url = movie_data['poster']
+        movie_rating = movie_data['imdb_rating']
+        movie_genre = movie_data['genre']
+        print movie_desc
+
+    def get_api_data(self, movie_id):
+        client = OMDBClient(apikey=self.api_key)
+        movie_info = client.get(imdbid=movie_id)
+        return movie_info
+
+
 def parse_n_save_data():
     df_rating = pd.read_csv('../data/ratings.tsv', sep="\t")
     df_rating.set_index('tconst', inplace=True)
@@ -19,32 +44,4 @@ def parse_n_save_data():
     df_merged.drop('titleType', axis=1, inplace=True)  # Drop unnecessary column
 
     df_merged.to_csv('../data/data_fixed.csv')
-
-
-def random_pop(df):
-    nbr_vote_pop = 25000
-    df_pop = df[df['numVotes'] > nbr_vote_pop]
-    df_pop_sorted = df_pop.sort_values('averageRating', ascending=False)
-    idx = random.randrange(500)  # Choose from the top 500
-    id = df_pop_sorted.iloc[idx]['tconst']
-    get_api_data(id)
-
-
-def get_api_data(movie_id):
-    api_key = '303b365e'
-    client = OMDBClient(apikey=api_key)
-    hej = client.get(imdbid=movie_id)
-    print hej
-
-
-if __name__ == '__main__':
-    df = pd.read_csv('../data/data_fixed.csv')
-
-    random_pop(df)
-
-    nbr_vote_pop = 25000
-
-    nbr_vote_unknown = 1000
-    df_unknown = df[df['numVotes'] < nbr_vote_pop]
-    df_unknown = df_unknown[df_unknown['numVotes'] > nbr_vote_unknown]
 
