@@ -24,6 +24,7 @@ $(function () {
   $('#survey').click(introduceSurvey);
   $('#news').click(introduceNews);
   $('#randomFact').click(introduceRandomFact);
+  $('#imdb').click(introduceImdb);
   /*$('#vasttrafik2').click(introduceVasttrafik2);*/
 });
 
@@ -73,6 +74,14 @@ function introduceNews() {
 function introduceNews() {
 	session.service('ALMemory').then(function (memory) {
 		memory.raiseEvent('random_fact', 1);
+		}, function (error) {
+    console.log(error);
+  })
+}
+
+function introduceImdb() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('imdb', 1);
   }, function (error) {
     console.log(error);
   })

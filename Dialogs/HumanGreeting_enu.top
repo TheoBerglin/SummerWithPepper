@@ -9,3 +9,4 @@ u:([Weather e:weather]) Starting weather $mod_to_run=WeatherModule
 u:([Survey e:survey]) Starting survey application $mod_to_run=SurveyModule
 u:(["News" e:news]) Starting news application $mod_to_run=NewsModule
 u:(["Random fact" e:random_fact]) Starting random fact application $mod_to_run=RandomFactModule
+u:(["Movies" e:imdb]) Starting movie application $mod_to_run=IMDBModule
