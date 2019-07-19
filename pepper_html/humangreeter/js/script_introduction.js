@@ -71,7 +71,7 @@ function introduceNews() {
   })
 }
 
-function introduceNews() {
+function introduceRandomFact() {
 	session.service('ALMemory').then(function (memory) {
 		memory.raiseEvent('random_fact', 1);
 		}, function (error) {

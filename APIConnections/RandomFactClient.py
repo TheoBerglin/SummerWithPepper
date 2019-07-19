@@ -1,6 +1,7 @@
 import requests
 import yaml
 import os
+import json
 
 API_SETTINGS_FILE = os.path.dirname(os.path.abspath(__file__)) + '\\api_settings.yml'
 
@@ -17,7 +18,7 @@ class RandomFactClient:
 
     def get_random_fact(self):
         """Get a random fact from the API"""
-        return requests.get(self.url)
+        return json.loads(requests.get(self.url).content.decode('UTF-8'))
 
     def get_random_english_fact(self):
         """Get a random fact that is in english from the API"""
@@ -25,3 +26,9 @@ class RandomFactClient:
         while random_fact['language'] != 'en':
             random_fact = self.get_random_fact()
         return random_fact
+
+
+if __name__ == '__main__':
+    randomClient = RandomFactClient()
+    random_fact = randomClient.get_random_english_fact()
+    print "tmp"

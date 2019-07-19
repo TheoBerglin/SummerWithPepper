@@ -55,7 +55,7 @@ class RandomFactModule(ModuleBaseClass):
         """
         An example interaction
         """
-        self.tts.setParameter("speed", 85)
+        self.tts.setParameter("speed", 92)
         self.tablet.hideWebview()
         random_fact = self.fact_client.get_random_english_fact()
 
