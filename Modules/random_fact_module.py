@@ -4,6 +4,7 @@
 from Modules.module import ModuleBaseClass
 from APIConnections.RandomFactClient import RandomFactClient
 
+
 class RandomFactModule(ModuleBaseClass):
     """
     An example module.
