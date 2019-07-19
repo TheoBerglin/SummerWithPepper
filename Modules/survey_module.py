@@ -110,17 +110,20 @@ class SurveyModule(ModuleBaseClass):
 
     def good_click(self, *_args):
         print "Good button clicked"
-        self.tts.say('That is nice to hear')
+        self.tts.say('Thank you for the feedback')
+        # self.tts.say('That is nice to hear')
         self.survey.register_click('good')
 
     def neutral_click(self, *_args):
         print "Neutral button clicked"
-        self.tts.say('Hope it is better the next time')
+        self.tts.say('Thank you for the feedback')
+        # self.tts.say('Hope it is better the next time')
         self.survey.register_click('neutral')
 
     def bad_click(self, *_args):
         print "Bad button clicked"
-        self.tts.say('I am sorry to hear that. Hope it is better the next time')
+        self.tts.say('Thank you for the feedback')
+        # self.tts.say('I am sorry to hear that. Hope it is better the next time')
         self.survey.register_click('bad')
 
     def show_result(self, *_args):
@@ -134,7 +137,6 @@ class SurveyModule(ModuleBaseClass):
         self.survey.plot_pie_chart()
         self.transfer_image_to_pepper(os.path.join(self.local_html_path, 'images', 'pie_chart.svg'))
         self.display_on_tablet('survey_summary.html')
-
 
     def subscribe_survey_topic(self):
         self.survey_topic = self.dialog.loadTopic(self.survey_topic_path)
