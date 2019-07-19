@@ -23,6 +23,7 @@ $(function () {
   $('#weather').click(introduceWeather);
   $('#survey').click(introduceSurvey);
   $('#news').click(introduceNews);
+  $('#randomFact').click(introduceRandomFact);
   $('#imdb').click(introduceImdb);
   /*$('#vasttrafik2').click(introduceVasttrafik2);*/
 });
@@ -66,6 +67,14 @@ function introduceNews() {
 	session.service('ALMemory').then(function (memory) {
 		memory.raiseEvent('news', 1);
   }, function (error) {
+    console.log(error);
+  })
+}
+
+function introduceRandomFact() {
+	session.service('ALMemory').then(function (memory) {
+		memory.raiseEvent('random_fact', 1);
+		}, function (error) {
     console.log(error);
   })
 }
