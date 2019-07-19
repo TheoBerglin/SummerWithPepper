@@ -8,3 +8,4 @@ u:([Planner Vesttrafik "v t" Commute Traffic e:vt]) Starting vesttrafik $mod_to_
 u:([Weather e:weather]) Starting weather $mod_to_run=WeatherModule
 u:([Survey e:survey]) Starting survey application $mod_to_run=SurveyModule
 u:(["News" e:news]) Starting news application $mod_to_run=NewsModule
+u:([Movies "Give me a movie recommendation" "Movie recommendation" e:imdb]) Fetching a movie recommendation $mod_to_run=IMDBModule
