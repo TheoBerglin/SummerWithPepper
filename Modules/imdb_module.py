@@ -88,6 +88,5 @@ class IMDBModule(ModuleBaseClass):
         self.tts.say('How about ' + self.imdb.movie_data['title'] + ' directed by ' + self.imdb.movie_data['director'])
 
     def new_movie(self, *_args):
-        print "entered callback"
         self.old_movie = False
         self.random_movie()

@@ -26,7 +26,7 @@ class Imbd:
         self.create_movie_page()
 
     def random_new_pop(self):
-        print "entered random new pop"
+        """ Find a random new popular movie and create a page """
         df_new = self.filter_new(self.df)
         df_pop_new = self.filter_popular(df_new)
         movie_id = self.get_random_movie(df_pop_new)
@@ -46,7 +46,7 @@ class Imbd:
 
     def filter_new(self, df):
         """
-         Sort the df descending according to rating
+         Remove movies older than made 1990
         :return: sorted dataframe
         """
         df_new = df[df['startYear'] > 1990]
