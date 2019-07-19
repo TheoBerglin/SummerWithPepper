@@ -4,8 +4,9 @@
 import time
 from Modules.module import ModuleBaseClass
 from Applications.RSSNewsHandler import RSSNewsHandler
-import os
 import re
+
+
 class NewsModule(ModuleBaseClass):
     """
     An example module.
@@ -27,11 +28,6 @@ class NewsModule(ModuleBaseClass):
         self.news_click_subscriber = self.memory.subscriber("news_clicked")
         self.news_click_id = self.news_click_subscriber.signal.connect(self.click_news_button)
 
-        # Subscribe to dialog
-        self.news_topic = self.dialog.loadTopic("/home/nao/News_enu.top")
-        self.dialog.activateTopic(self.news_topic)
-        self.dialog.subscribe(self.name)
-
     def display_on_tablet(self, full_file_name):
         """
         Display file on Pepper's tablet
@@ -44,6 +40,10 @@ class NewsModule(ModuleBaseClass):
         Initiate dialog upon method call. Run until finished, then shutoff.
         """
         self.module_finished = False
+        # Subscribe to dialog
+        self.news_topic = self.dialog.loadTopic("/home/nao/News_enu.top")
+        self.dialog.activateTopic(self.news_topic)
+        self.dialog.subscribe(self.name)
         full_file_name = "news.html"
         self.display_on_tablet(full_file_name)
         while not self.module_finished:

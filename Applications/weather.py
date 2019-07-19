@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 import re
+import sys
 
 
 class Weather:
@@ -34,6 +35,9 @@ class Weather:
         self.future_weather_data = None
         self.reset_current_weather_data()
         self.reset_future_weather_data()
+
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
 
     def reset_current_weather_data(self):
         self.current_weather_data = {'hours': list(),
