@@ -31,6 +31,7 @@ class IMDBModule(ModuleBaseClass):
         super(IMDBModule, self).display_on_tablet(full_file_name)
 
     def run(self):
+        self.old_movie = True
         self.initiate_dialog()
         while not self.module_finished:
             time.sleep(1)
@@ -67,15 +68,25 @@ class IMDBModule(ModuleBaseClass):
         # Subscribe to events raised on button click
         self.random_subscriber = self.memory.subscriber("random")
         self.random_id = self.random_subscriber.signal.connect(self.random_movie)
+        self.new_subscriber = self.memory.subscriber("new")
+        self.new_id = self.new_subscriber.signal.connect(self.new_movie)
 
-        #self.display_on_tablet('weather_intro.html')
+        self.random_movie()
 
     def random_movie(self, *_args):
         self.tablet.hideWebview()
+        if self.old_movie:
+            self.imdb.random_pop()
+        else:
+            self.imdb.random_new_pop()
 
-        self.imdb.random_pop()
         random_pop_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/movie.html'
         self.transfer_to_pepper(random_pop_path)
         poster_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/images/movie_poster.jpg'
         self.transfer_to_pepper(poster_path)
         self.display_on_tablet('movie.html')
+        self.tts.say('How about ' + self.imdb.movie_data['title'] + ' directed by ' + self.imdb.movie_data['director'])
+
+    def new_movie(self, *_args):
+        self.old_movie = False
+        self.random_movie()

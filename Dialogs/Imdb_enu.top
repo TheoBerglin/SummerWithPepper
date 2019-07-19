@@ -3,7 +3,8 @@ language: enu
 
 include:lexicon_enu.top
 
-u:([quit exit]) Exiting module $exit=1
-u:(Movie) Fetching a movie recommendation $random=1
+u:([quit exit yes thanks "thank you"]) Exiting module $exit=1
+u:([movie "no thank you" no next]) Getting a new recommendation $random=1
+u:([newer "not as old"]) Getting a younger movie $new=1
 
         
