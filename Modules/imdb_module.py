@@ -64,6 +64,10 @@ class IMDBModule(ModuleBaseClass):
         self.dialog.activateTopic(self.topic)
         self.dialog.subscribe(self.name)
 
+        # Subscribe to events raised on button click
+        self.random_subscriber = self.memory.subscriber("random")
+        self.random_id = self.random_subscriber.signal.connect(self.random_movie)
+
         self.random_movie()
 
     def random_movie(self, *_args):
@@ -75,3 +79,4 @@ class IMDBModule(ModuleBaseClass):
         poster_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/imdb/images/movie_poster.jpg'
         self.transfer_to_pepper(poster_path)
         self.display_on_tablet('movie.html')
+        self.tts.say('How about ' + self.imdb.movie_data['title'] + ' directed by ' + self.imdb.movie_data['director'])

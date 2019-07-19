@@ -4,19 +4,30 @@
     <meta charset="utf-8">
     <title>Movie page</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <style>
+    body {
+    background-color: #e6ffee;
+}
+</style>
 </head>
 <body onLoad=getInitialText()>
-<h2 id="correctHeader" href=test.html align="middle">Here's a movie recommendation for you</h2>
-<table align="center" style="border:1px solid black;" >
+<br>
+<br>
+<br>
+<table align="center" style="border:1px solid black;" bgcolor="#FFFFFF">
     <tr>
         <td align="center">
             <input type="image" id="movie" src=alt="movie" width="300" height="450" align="center"/>
         </td>
-		<td width="300">
-            <p align="left"><b id="title">
+		<td valign="top" width="300">
+            <p align="left" style="font-size:20px;"><b id="title">
 
             </b></p>
+            <p align="left" id="runtime">
+			</p>
 			<p align="left" id="genre">
+			</p>
+            <p align="left" id="director">
 			</p>
 			<p align="left" id="desc">
 			</p>
