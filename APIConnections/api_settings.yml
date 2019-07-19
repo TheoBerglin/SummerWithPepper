@@ -1,3 +1,6 @@
 Vasttrafik:
     Key: 'ELzno1pZTtk2SHQrSQG9dvPnhc8a'
     Secret: 'nxJS0_Pml6RNCy1MzVIMtgt7CWwa'
+
+random_fact:
+    url: http://randomuselessfact.appspot.com/random.json
