@@ -37,5 +37,5 @@ class RandomFactClient:
 
 if __name__ == '__main__':
     randomClient = RandomFactClient()
-    random_fact = randomClient.get_random_english_fact()
+    rf = randomClient.get_random_english_fact()
     print "tmp"
