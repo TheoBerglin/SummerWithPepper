@@ -16,9 +16,16 @@ class RandomFactClient:
                 print(exc)
         self.url = api_settings['random_fact']['url']
 
+    def get_api_response(self):
+        return requests.get(self.url)
+
+    @staticmethod
+    def clean_api_response(resp):
+        return resp.content.decode('UTF-8')
+
     def get_random_fact(self):
         """Get a random fact from the API"""
-        return json.loads(requests.get(self.url).content.decode('UTF-8'))
+        return json.loads(self.clean_api_response(self.get_api_response()))
 
     def get_random_english_fact(self):
         """Get a random fact that is in english from the API"""
