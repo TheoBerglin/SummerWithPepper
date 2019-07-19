@@ -29,6 +29,32 @@ class WeatherModule(ModuleBaseClass):
         :param full_file_name: file name including file ending
         """
         super(WeatherModule, self).display_on_tablet(full_file_name)
+        self.introduce_view(full_file_name)
+
+    def introduce_view(self, file_name):
+        if file_name == 'weather_hour.html':
+            if self.wt.get_forecast() is None:
+                return
+            current_weather = self.wt.get_current_weather_data()
+            weather1 = current_weather['icon'][0].split('.svg')[0].replace('_', ' ')
+            weather2 = current_weather['icon'][2].split('.svg')[0].replace('_', ' ')
+            temperature1 = current_weather['temperature'][0].__format__('.0f')
+            temperature2 = current_weather['temperature'][2].__format__('.0f')
+            string1 = 'Right now it is %s with a temperature of %s degrees' % (weather1, temperature1)
+            string2 = 'In two hours it will be %s with a temperature of %s degrees' % (weather2, temperature2)
+            self.tts.say(string1)
+            self.tts.say(string2)
+        elif file_name == 'weather_day.html':
+            if self.wt.get_forecast() is None:
+                return
+            future_weather = self.wt.get_future_weather_data()
+            weather1 = future_weather['summaries'][1]
+            temperatureLow1 = future_weather['temps_low'][1].__format__('.0f')
+            temperatureHigh1 = future_weather['temps_high'][1].__format__('.0f')
+            string1 = 'It will be %s tomorrow with lowest temperature %s degrees and highest temperature %s degrees.' % (weather1, temperatureLow1, temperatureHigh1)
+            self.tts.say(string1)
+        else:
+            self.tts.say('Where do you want to know the weather?')
 
     def run(self):
         self.initiate_dialog()
@@ -80,8 +106,8 @@ class WeatherModule(ModuleBaseClass):
         self.tablet.hideWebview()
 
         self.loc = self.memory.getData("location")
-
-        self.wt.get_current_weather(self.loc)
+        self.wt.download_forecast(self.loc)
+        self.wt.create_weather_pages(self.loc)
         hour_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_hour.html'
         self.transfer_to_pepper(hour_path)
         weather_path = os.path.dirname(os.path.abspath('main.py')) + '/pepper_html/weather/weather_day.html'
