@@ -20,8 +20,16 @@ class Imbd:
 
     def random_pop(self):
         """ Find a random popular movie and create a page """
-        df_sorted = self.filter_popular()
-        movie_id = self.get_random_movie(df_sorted)
+        df_pop_sorted = self.filter_popular(self.df)
+        movie_id = self.get_random_movie(df_pop_sorted)
+        self.get_api_data(movie_id)
+        self.create_movie_page()
+
+    def random_new_pop(self):
+        print "entered random new pop"
+        df_new = self.filter_new(self.df)
+        df_pop_new = self.filter_popular(df_new)
+        movie_id = self.get_random_movie(df_pop_new)
         self.get_api_data(movie_id)
         self.create_movie_page()
 
@@ -36,12 +44,20 @@ class Imbd:
         imdb_id = df_sorted.iloc[idx]['tconst']
         return imdb_id
 
-    def filter_popular(self):
+    def filter_new(self, df):
         """
          Sort the df descending according to rating
         :return: sorted dataframe
         """
-        df_pop = self.df[self.df['numVotes'] > self.nbr_vote_pop]
+        df_new = df[df['startYear'] > 1990]
+        return df_new
+
+    def filter_popular(self, df):
+        """
+         Sort the df descending according to rating
+        :return: sorted dataframe
+        """
+        df_pop = df[df['numVotes'] > self.nbr_vote_pop]
         df_pop_sorted = df_pop.sort_values('averageRating', ascending=False)
         return df_pop_sorted
 
@@ -76,7 +92,9 @@ class Imbd:
         text_rating = soup.find_all(id=re.compile('rating'))
 
         images[0]['src'] = 'movie_poster.jpg'
+
         text_title[0].string = self.movie_data['title'] + ' (' + self.movie_data['year'] + ')'
+
         runtime_tag = soup.new_tag("b")
         runtime_tag.string = 'Runtime: '
         text_runtime[0].string = self.movie_data['runtime']
@@ -105,12 +123,14 @@ class Imbd:
 
 
 def parse_n_save_data():
-    df_rating = pd.read_csv('../data/ratings.tsv', sep="\t")
+    df_rating = pd.read_csv('data/ratings.tsv', sep="\t")
     df_rating.set_index('tconst', inplace=True)
 
-    df = dd.read_csv('../data/data.tsv', sep="\t",
-                     usecols=['tconst', 'titleType', 'primaryTitle', 'originalTitle', 'genres'])
+    df = dd.read_csv('data/data.tsv', sep="\t",
+                     usecols=['tconst', 'titleType', 'primaryTitle', 'originalTitle', 'genres', 'startYear'], dtype={'startYear': 'object'})
     df = df[df['titleType'] == 'movie']
+    df = df[df['startYear'] != '']
+    df = df[df['startYear'] != '\N']
     df = df.compute()
     df.set_index('tconst', inplace=True)
 
@@ -118,5 +138,5 @@ def parse_n_save_data():
 
     df_merged.drop('titleType', axis=1, inplace=True)  # Drop unnecessary column
 
-    df_merged.to_csv('../data/data_fixed.csv')
+    df_merged.to_csv('data/data_fixed.csv')
 
