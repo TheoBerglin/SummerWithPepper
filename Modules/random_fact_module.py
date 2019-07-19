@@ -2,7 +2,7 @@
 # -*- encoding: UTF-8 -*-
 
 from Modules.module import ModuleBaseClass
-
+from APIConnections.RandomFactClient import RandomFactClient
 
 class RandomFactModule(ModuleBaseClass):
     """
@@ -16,6 +16,7 @@ class RandomFactModule(ModuleBaseClass):
         # Folder name on Pepper
         folder_name = "random_fact"
         # Superclass init call
+        self.fact_client = RandomFactClient()
         super(RandomFactModule, self).__init__(app, name, pepper_ip, folder_name)
 
     def display_on_tablet(self, full_file_name):
@@ -55,6 +56,7 @@ class RandomFactModule(ModuleBaseClass):
         """
         self.tts.setParameter("speed", 85)
         self.tablet.hideWebview()
-        random_fact = "apa"
-        self.tts.say("Did you know that %s" % random_fact)
+        random_fact = self.fact_client.get_random_english_fact()
+
+        self.tts.say("Did you know that %s" % random_fact['text'])
         self.tts.resetSpeed()
