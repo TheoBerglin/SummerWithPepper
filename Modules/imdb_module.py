@@ -64,11 +64,7 @@ class IMDBModule(ModuleBaseClass):
         self.dialog.activateTopic(self.topic)
         self.dialog.subscribe(self.name)
 
-        # Subscribe to events raised on button click
-        self.random_subscriber = self.memory.subscriber("random")
-        self.random_id = self.random_subscriber.signal.connect(self.random_movie)
-
-        #self.display_on_tablet('weather_intro.html')
+        self.random_movie()
 
     def random_movie(self, *_args):
         self.tablet.hideWebview()

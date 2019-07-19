@@ -45,11 +45,13 @@ class Imbd:
         text_title = soup.find_all(id=re.compile('title'))
         text_genre = soup.find_all(id=re.compile('genre'))
         text_desc = soup.find_all(id=re.compile('desc'))
+        text_rating = soup.find_all(id=re.compile('rating'))
 
         images[0]['src'] = 'movie_poster.jpg'
-        text_title[0].string = movie_title + '(' + movie_year + '), ' + movie_rating + '/10'
+        text_title[0].string = movie_title + ', (' + movie_year + ')'
         text_genre[0].string = movie_genre
         text_desc[0].string = movie_desc
+        text_rating[0].string = 'Rating: ' + movie_rating + ' / 10'
 
         # Save file
         with open("pepper_html/imdb/movie.html", "w") as file:
