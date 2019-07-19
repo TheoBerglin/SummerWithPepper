@@ -9,6 +9,7 @@ from Modules.survey_module import SurveyModule
 from Modules.news_module import NewsModule
 from Modules.random_fact_module import RandomFactModule
 from Modules.imdb_module import IMDBModule
+from Modules.joke_module import JokeModule
 IP = "192.168.1.102"
 
 if __name__ == '__main__':

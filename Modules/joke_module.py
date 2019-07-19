@@ -2,10 +2,10 @@
 # -*- encoding: UTF-8 -*-
 
 from Modules.module import ModuleBaseClass
-from APIConnections.RandomFactClient import RandomFactClient
+from APIConnections.JokeClient import JokeClient
 
 
-class RandomFactModule(ModuleBaseClass):
+class JokeModule(ModuleBaseClass):
     """
     An example module.
     """
@@ -15,25 +15,24 @@ class RandomFactModule(ModuleBaseClass):
         Initialisation of module and event detection.
         """
         # Folder name on Pepper
-        folder_name = "random_fact"
+        folder_name = "joke"
         # Superclass init call
-        self.fact_client = RandomFactClient()
-        super(RandomFactModule, self).__init__(app, name, pepper_ip, folder_name)
+        self.client = JokeClient()
+        super(JokeModule, self).__init__(app, name, pepper_ip, folder_name)
 
     def display_on_tablet(self, full_file_name):
         """
         Display file on Pepper's tablet
         :param full_file_name: file name including file ending
         """
-        super(RandomFactModule, self).display_on_tablet(full_file_name)
+        super(JokeModule, self).display_on_tablet(full_file_name)
 
     def run(self):
         """
         Initiate dialog upon method call. Run until finished, then shutoff.
         """
         self.module_finished = False
-        self.tell_random_fact()
-
+        self.tell_random_joke()
         self.shutoff()
 
     def shutoff(self, *_args):
@@ -46,10 +45,10 @@ class RandomFactModule(ModuleBaseClass):
         except:
             pass
 
-    def tell_random_fact(self):
+    def tell_random_joke(self):
         """
         An example interaction
         """
-        random_fact = self.fact_client.get_random_english_fact()
-
-        self.tts.say("Did you know that %s" % random_fact['text'])
+        joke = self.client.get_random_chuck_norris_joke()
+        joke = joke.replace('Chuck Norris', 'Zlatan')
+        self.tts.say(joke)

@@ -4,3 +4,6 @@ Vasttrafik:
 
 random_fact:
     url: http://randomuselessfact.appspot.com/random.json
+
+joke:
+    url: https://geek-jokes.sameerkumar.website/api
