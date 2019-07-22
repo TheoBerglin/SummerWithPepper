@@ -33,20 +33,23 @@ class VasttrafikModule(ModuleBaseClass):
         self.tablet.enableWifi()
         ip = self.tablet.robotIp()
         remote_path = 'http://%s/apps/%s/%s' % (ip, self.folder_name, full_file_name)
+        time_since_update = 0
         if update:
             while True:
-                full_path = os.path.join(self.local_html_path, full_file_name)
+                if time_since_update % 30 == 0:
+                    full_path = os.path.join(self.local_html_path, full_file_name)
 
-                file_name = full_file_name.split('.')[0]
+                    file_name = full_file_name.split('.')[0]
 
-                print "Connecting to Vasttrafik and getting next rides"
-                self.vt.create_departure_html(file_name)
-                print "Download complete"
+                    print "Connecting to Vasttrafik and getting next rides"
+                    self.vt.create_departure_html(file_name)
+                    print "Download complete"
 
-                self.transfer_to_pepper(full_path)
-                self.tablet.showWebview(remote_path)
+                    self.transfer_to_pepper(full_path)
+                    self.tablet.showWebview(remote_path)
 
-                time.sleep(3)  # Update view with new data every 3 seconds
+                time.sleep(1)  # Update view with new data every 3 seconds
+                time_since_update += 1
                 if self.hide_tablet:
                     print "Killing thread and hiding tablet"
                     self.tablet.hideWebview()
@@ -188,7 +191,10 @@ class VasttrafikModule(ModuleBaseClass):
         self.dialog.activateTopic(self.satisfied_topic)
         self.dialog.subscribe(self.name)
 
+        satisfied_time = 0
         # While user is not satisified
         while not self.module_finished:
-            self.tts.say("Are you satisfied")
-            time.sleep(5)
+            if satisfied_time % 10 == 0:
+                self.tts.say("Are you satisfied")
+            satisfied_time += 1
+            time.sleep(1)
