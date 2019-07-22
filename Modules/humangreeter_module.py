@@ -73,8 +73,10 @@ class HumanGreeter(object):
                 pass
 
         self.motion.moveTo(-0.1, 0, 0)
+        self.motion.waitUntilMoveIsFinished()
         print "Obstacle rotate"
         self.rotate(self.random_sign()*math.pi / 4)  # Rotate 90 degrees
+        self.motion.waitUntilMoveIsFinished()
 
         # We have rotated, let's listen to the event again.
         self.obstacle_id = self.obstacle_subscriber.signal.connect(self.obstacle_rotate)
