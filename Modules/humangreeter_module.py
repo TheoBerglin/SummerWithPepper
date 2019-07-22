@@ -1,6 +1,6 @@
 import time
 import math
-
+import random
 
 class HumanGreeter(object):
     """
@@ -60,12 +60,22 @@ class HumanGreeter(object):
         if self.walk:
             self.random_walk()
 
+    @staticmethod
+    def random_sign():
+        return 1 if random.random() < 0.5 else -1
+
     def obstacle_rotate(self, *_args):
         # So that we do not listen to the event while rotating. Event can be triggered by part of rotation.
-        self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+        if self.obstacle_id is not None:
+            try:
+                self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+            except RuntimeError:
+                pass
+
         self.motion.moveTo(-0.1, 0, 0)
         print "Obstacle rotate"
-        self.rotate(math.pi / 4)  # Rotate 90 degrees
+        self.rotate(self.random_sign()*math.pi / 4)  # Rotate 90 degrees
+
         # We have rotated, let's listen to the event again.
         self.obstacle_id = self.obstacle_subscriber.signal.connect(self.obstacle_rotate)
 
@@ -81,7 +91,8 @@ class HumanGreeter(object):
         Callback for event FaceDetected.
         """
         try:
-            self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+            if self.obstacle_id is not None:
+                self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
         except RuntimeError:
             print "Found face while not moving"
 
