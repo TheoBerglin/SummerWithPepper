@@ -7,9 +7,10 @@ class HumanGreeter(object):
     A class to react to face detection events and greet the user.
     """
 
-    def __init__(self, app, name):
+    def __init__(self, app, name, walk=False):
         """
         Initialisation of qi framework and event detection.
+        Walk determines if Pepper should walk randomly when trying to detect a face.
         """
         super(HumanGreeter, self).__init__()
 
@@ -24,6 +25,9 @@ class HumanGreeter(object):
         self.memory = self.session.service("ALMemory")
         # Subscribe to FaceDetected event
         self.face_subscriber = self.memory.subscriber("FaceDetected")
+        # Subscribe to move failed event
+        self.obstacle_subscriber = self.memory.subscriber('ALMotion/MoveFailed')
+        self.obstacle_id = None
         # Get the services ALTextToSpeech, ALDialog, ALTabletService and ALFaceDetection.
         self.tts = self.session.service("ALTextToSpeech")
         self.motion = self.session.service("ALMotion")
@@ -31,9 +35,9 @@ class HumanGreeter(object):
         self.dialog = self.session.service("ALDialog")
         self.dialog.setLanguage("English")
         self.tablet = self.session.service("ALTabletService")
+
         self.face_detection = self.session.service("ALFaceDetection")
         self.face_detection.subscribe(self.name)
-
         self.face_id = 0
 
         # Subscribe to the event "mod_to_run" and connect to a callback func
@@ -43,6 +47,8 @@ class HumanGreeter(object):
         self.module_set = False
         self.module_to_run = ''
 
+        self.walk = walk
+
     def get_module(self):
         return self.module_to_run
 
@@ -51,13 +57,37 @@ class HumanGreeter(object):
         self.tts.say("Im searching for human life")
         # Connect the event callback.
         self.face_id = self.face_subscriber.signal.connect(self.on_human_tracked)  # returns SignalSubscriber
+        if self.walk:
+            self.random_walk()
+
+    def obstacle_rotate(self, *_args):
+        # So that we do not listen to the event while rotating. Event can be triggered by part of rotation.
+        self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+        self.motion.moveTo(-0.1, 0, 0)
+        print "Obstacle rotate"
+        self.rotate(math.pi / 4)  # Rotate 90 degrees
+        # We have rotated, let's listen to the event again.
+        self.obstacle_id = self.obstacle_subscriber.signal.connect(self.obstacle_rotate)
+
+    def random_walk(self):
+        self.move_around = True
+        self.obstacle_id = self.obstacle_subscriber.signal.connect(self.obstacle_rotate)
+        while self.move_around:
+            self.motion.move(0.15, 0, 0)  # Move forward, x-direction, 0.15 m/s
+        self.motion.stopMove()
 
     def on_human_tracked(self, _args):
         """
         Callback for event FaceDetected.
         """
-        self.face_subscriber.signal.disconnect(self.face_id)
+        try:
+            self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+        except RuntimeError:
+            print "Found face while not moving"
 
+        self.face_subscriber.signal.disconnect(self.face_id)
+        self.motion.stopMove()  # Stand still
+        self.move_around = False  # Should not move around
         print "Face detected"
         self.display_on_tablet('introduction.html')
 
@@ -71,7 +101,7 @@ class HumanGreeter(object):
         """
         Method to make Pepper rotate
         """
-        print "Rotating " + str(rad*180/math.pi) + " deg"
+        print "Rotating " + str(rad * 180 / math.pi) + " deg"
         self.motion.moveTo(0, 0, rad)
 
     def run_module(self, *_args):
@@ -97,6 +127,12 @@ class HumanGreeter(object):
         Shutoff and unsubscribe to events
         """
         try:
+            self.move_around = False
+            print 'Stopped moving around'
+        except:
+            pass
+
+        try:
             self.dialog.deactivateTopic(self.topic)
             self.dialog.unloadTopic(self.topic)
             self.dialog.unsubscribe(self.name)
@@ -109,6 +145,12 @@ class HumanGreeter(object):
             self.face_subscriber.signal.disconnect(self.face_id)
             self.face_detection.unsubscribe(self.name)
             print "Unsubscribed to face"
+        except RuntimeError:
+            pass
+        try:
+            if self.obstacle_id is not None:
+                self.obstacle_subscriber.signal.disconnect(self.obstacle_id)
+                print 'Unsubscribed to obstacle avoidance'
         except RuntimeError:
             pass
         try:
@@ -131,7 +173,7 @@ class HumanGreeter(object):
         print "Starting HumanGreeter"
 
         if self.module_set:
-            self.rotate(math.pi*2/3)
+            self.rotate(math.pi * 2 / 3)
             self.module_set = False
             self.module_to_run = ''
         self.look_for_human()

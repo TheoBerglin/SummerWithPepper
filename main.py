@@ -18,6 +18,8 @@ if __name__ == '__main__':
                         help="Robot IP address. On robot or Local Naoqi: use '192.168.1.102'.")
     parser.add_argument("--port", type=int, default=9559,
                         help="Naoqi port number")
+    parser.add_argument('-w', action="store_true", default=False, help="Use if you want Pepper to walk randomly when "
+                                                                       "trying to find a human.")
 
     args = parser.parse_args()
     name = "HumanGreeter"
@@ -32,7 +34,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # Create human greeter
-    human_greeter = HumanGreeter(app, name)
+    human_greeter = HumanGreeter(app, name, walk=args.w)
 
     # Create dict for storing modules
     modules = dict()
