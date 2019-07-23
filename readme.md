@@ -3,6 +3,8 @@
 The HumanGreeter search for humans and when detected ask what they might need help with. The HumanGreeter contains modules for each task. A how to document for Pepper and writing new modules for the structure is available in the misc folder. All modules can be launched using the tablet on Peppers stomach or by saying specific key phrases. These can be found in the dialog *Dialogs/HumanGreeting_enu.top*. Logic for each module is best understood by having a look at there respective dialog files.
 
 ## Available Modules ##
+![Image of available modules](https://github.com/TheoBerglin/SummerWithPepper/blob/master/Misc/IMG_4686.jpg)
+
 ### Vasttrafik
 Public transportation application. You can either plan a trip or see the next departures from close by stations. Planning a trip can be done using speech but also in text by saying "*text*" to Pepper. There is no implementation for fetching Peppers current location which means that the coordinates of Pepper is fixed to Lindholmspiren. This can be implemented so that the departures from close by station makes more sense at other locations.
 ### Weather
