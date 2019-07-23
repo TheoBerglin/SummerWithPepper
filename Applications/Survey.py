@@ -10,6 +10,9 @@ SURVEY_FIELDS = ['good', 'neutral', 'bad']
 class Survey:
 
     def __init__(self, save_path):
+        """
+        :param save_path: Where information should be saved
+        """
         self.survey_information = {'full_information': list(),
                                    'result': {'good': 0,
                                               'neutral': 0,
@@ -17,6 +20,10 @@ class Survey:
         self.save_path = save_path
 
     def register_click(self, button):
+        """Register a button click"""
+        if button not in self.survey_information['result']:
+            print "Bad button call"
+            return
         reg_time = datetime.datetime.now()
         reg_time = reg_time.strftime('%d/%m/%Y, %H:%M:%S')
         self.survey_information['full_information'].append({'time': reg_time,
@@ -24,7 +31,7 @@ class Survey:
         self.survey_information['result'][button] += 1
 
     def save_survey(self):
-        """"""
+        """Save the survey information data"""
         save_str = json.dumps(self.survey_information, indent=2, sort_keys=True)
         full_file_name = 'survey_information.txt'
         full_save_path = '%s/%s' % (self.save_path, full_file_name)
@@ -33,6 +40,7 @@ class Survey:
         print 'Saving survey data to: ' + full_save_path
 
     def print_survey(self):
+        """Print survey information"""
         total_clicks = 0
         for field in SURVEY_FIELDS:
             total_clicks += self.survey_information['result'][field.lower()]
@@ -44,6 +52,7 @@ class Survey:
         print 50 * '-'
 
     def plot_pie_chart(self):
+        """Plot and save a pie chart of the survey result"""
         # Plot data
         labels = [label.capitalize() for label in self.survey_information['result'].keys()]
         labels = sorted(labels)
@@ -81,4 +90,10 @@ class Survey:
         print "Figured saved"
 
     def save_figure(self, fig, fig_name):
+        """
+        Save figure
+        :param fig: fig object
+        :param fig_name: file name of the figure
+        :return:
+        """
         fig.savefig(os.path.join(self.save_path, 'images', fig_name), format='svg', dpi=1000)

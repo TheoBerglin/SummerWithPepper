@@ -109,24 +109,28 @@ class SurveyModule(ModuleBaseClass):
         os.remove(file_path)  # Remove file after transfer
 
     def good_click(self, *_args):
+        """Call back function for the good button"""
         print "Good button clicked"
         self.tts.say('Thank you for the feedback')
         # self.tts.say('That is nice to hear')
         self.survey.register_click('good')
 
     def neutral_click(self, *_args):
+        """Call back function for the neutral button"""
         print "Neutral button clicked"
         self.tts.say('Thank you for the feedback')
         # self.tts.say('Hope it is better the next time')
         self.survey.register_click('neutral')
 
     def bad_click(self, *_args):
+        """Call back function for the bad button"""
         print "Bad button clicked"
         self.tts.say('Thank you for the feedback')
         # self.tts.say('I am sorry to hear that. Hope it is better the next time')
         self.survey.register_click('bad')
 
     def show_result(self, *_args):
+        """Call back function if the user wants to see the result"""
         self.tablet.hideWebview()
         try:
             self.unsubscribe_survey_topic()
@@ -140,23 +144,27 @@ class SurveyModule(ModuleBaseClass):
         self.display_on_tablet('survey_summary.html')
 
     def subscribe_survey_topic(self):
+        """Subscribe to the main topic for the survey"""
         self.survey_topic = self.dialog.loadTopic(self.survey_topic_path)
         self.dialog.activateTopic(self.survey_topic)
         self.dialog.subscribe(self.name)
         print "Loaded survey topic"
 
     def subscribe_result_topic(self):
+        """Subscribe to the result topic for the survey"""
         self.result_topic = self.dialog.loadTopic(self.result_topic_path)
         self.dialog.activateTopic(self.result_topic)
         self.dialog.subscribe(self.name)
         print "Loaded result topic"
 
     def unsubscribe_survey_topic(self):
+        """Unsubscribe from the main topic for the survey"""
         self.dialog.deactivateTopic(self.survey_topic)
         self.dialog.unloadTopic(self.survey_topic)
         self.dialog.unsubscribe(self.name)
 
     def unsubscribe_result_topic(self):
+        """Unsubscribe from the result topic for the survey"""
         self.dialog.deactivateTopic(self.result_topic)
         self.dialog.unloadTopic(self.survey_topic)
         self.dialog.unsubscribe(self.name)

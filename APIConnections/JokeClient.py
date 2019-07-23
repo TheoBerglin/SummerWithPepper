@@ -17,10 +17,12 @@ class JokeClient:
         self.url = api_settings['joke']['url']
 
     def get_api_response(self):
+        """Get response object from the API"""
         return requests.get(self.url)
 
     @staticmethod
     def clean_api_response(resp):
+        """Extract only the content from a response object"""
         return resp.content.decode('UTF-8')
 
     def get_random_joke(self):

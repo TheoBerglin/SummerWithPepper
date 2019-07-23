@@ -58,6 +58,7 @@ class IMDBModule(ModuleBaseClass):
         self.module_finished = False
 
     def initiate_dialog(self):
+        """Initiate the dialog of the module"""
         self.tablet.hideWebview()
 
         # Load dialog and display intro screen
@@ -74,6 +75,7 @@ class IMDBModule(ModuleBaseClass):
         self.random_movie()
 
     def random_movie(self, *_args):
+        """Call back function for retreiving a random movie"""
         self.tablet.hideWebview()
         if self.old_movie:
             self.imdb.random_pop()
@@ -88,5 +90,6 @@ class IMDBModule(ModuleBaseClass):
         self.tts.say('How about ' + self.imdb.movie_data['title'] + ' directed by ' + self.imdb.movie_data['director'])
 
     def new_movie(self, *_args):
+        """Call back function for wanting newer movies only"""
         self.old_movie = False
         self.random_movie()
