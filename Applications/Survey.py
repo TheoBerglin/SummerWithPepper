@@ -3,6 +3,9 @@ import datetime
 import json
 import os
 
+PIE_COLOR = ['#ff9999', '#99ff99', '#ffcc99']
+SURVEY_FIELDS = ['good', 'neutral', 'bad']
+
 
 class Survey:
 
@@ -30,13 +33,12 @@ class Survey:
         print 'Saving survey data to: ' + full_save_path
 
     def print_survey(self):
-        fields = ['good', 'neutral', 'bad']
         total_clicks = 0
-        for field in fields:
+        for field in SURVEY_FIELDS:
             total_clicks += self.survey_information['result'][field.lower()]
         print 50 * '-'
         print 'Survey summary'
-        for field in fields:
+        for field in SURVEY_FIELDS:
             v = self.survey_information['result'][field.lower()]
             print '%d people (%.1f%%) thought the event was %s' % (v, 100.0 * v / total_clicks, field)
         print 50 * '-'
@@ -44,14 +46,14 @@ class Survey:
     def plot_pie_chart(self):
         # Plot data
         labels = [label.capitalize() for label in self.survey_information['result'].keys()]
-        sizes = [self.survey_information['result'][label] for label in self.survey_information['result'].keys()]
+        labels = sorted(labels)
+        sizes = [self.survey_information['result'][label] for label in sorted(self.survey_information['result'].keys())]
         # colors red, green and yellow
-        colors = ['#ff9999', '#99ff99', '#ffcc99']
         # Pop out the pie charts
         explode = (0.05, 0.05, 0.05)
         # Plot pie chart
         fig1, ax1 = plt.subplots()
-        _, texts, pct = ax1.pie(sizes, colors=colors, labels=labels, autopct='%1.1f%%', startangle=90,
+        _, texts, pct = ax1.pie(sizes, colors=PIE_COLOR, labels=labels, autopct='%1.1f%%', startangle=90,
                                 explode=explode, pctdistance=0.7)
         # Set sizes of percentage and text
         [_.set_fontsize(14) for _ in pct]
