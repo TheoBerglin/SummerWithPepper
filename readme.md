@@ -16,7 +16,7 @@ The HumanGreeter search for humans and when detected ask what they might need he
 ![Image of available modules](https://github.com/TheoBerglin/SummerWithPepper/blob/master/Misc/IMG_4686.jpg)
 
 ### Vasttrafik
-Public transportation application. You can either plan a trip or see the next departures from close by stations. Planning a trip can be done using speech but also in text by saying "*text*" to Pepper. There is no implementation for fetching Peppers current location which means that the coordinates of Pepper is fixed to Lindholmspiren. This can be implemented so that the departures from close by station makes more sense at other locations. Say "*done*" or "*exit*" to exit the module.
+Public transportation application. You can either plan a trip or see the next departures from close by stations. Planning a trip can be done using speech but also in text by saying "*text*" to Pepper. There is no implementation for fetching Peppers current location which means that the coordinates of Pepper is fixed to Lindholmspiren. This can be implemented so that the departures from close by station makes more sense at other locations. Say "*done*" or "*exit*" to exit the module. When Pepper asks if you are satisfied, you can say "*yes*" and the module will exit aswell.
 
 ### Weather
 Fetches and displays the weather from any location on earth. No speech input apart from exiting module. Displays either hour for hourly or daily. Say "*done*" or "*exit*" to exit the module.
