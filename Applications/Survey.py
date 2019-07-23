@@ -53,7 +53,15 @@ class Survey:
         explode = (0.05, 0.05, 0.05)
         # Plot pie chart
         fig1, ax1 = plt.subplots()
-        _, texts, pct = ax1.pie(sizes, colors=PIE_COLOR, labels=labels, autopct='%1.1f%%', startangle=90,
+
+        def make_autopct(values):
+            def my_autopct(pct):
+                total = sum(values)
+                val = int(round(pct * total / 100.0))
+                return '{p:.1f}%  ({v:d})'.format(p=pct, v=val)
+
+            return my_autopct
+        _, texts, pct = ax1.pie(sizes, colors=PIE_COLOR, labels=labels, autopct=make_autopct(sizes), startangle=90,
                                 explode=explode, pctdistance=0.7)
         # Set sizes of percentage and text
         [_.set_fontsize(14) for _ in pct]
@@ -67,8 +75,10 @@ class Survey:
         # Equal aspect ratio ensures that pie is drawn as a circle
         ax1.axis('equal')
         plt.tight_layout()
+        print "Plot done"
         self.save_figure(fig, 'pie_chart.svg')
-        plt.close()
+        plt.close('all')
+        print "Figured saved"
 
     def save_figure(self, fig, fig_name):
         fig.savefig(os.path.join(self.save_path, 'images', fig_name), format='svg', dpi=1000)

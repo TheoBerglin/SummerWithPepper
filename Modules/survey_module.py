@@ -135,6 +135,7 @@ class SurveyModule(ModuleBaseClass):
             pass
         self.subscribe_result_topic()
         self.survey.plot_pie_chart()
+        time.sleep(0.5)
         self.transfer_image_to_pepper(os.path.join(self.local_html_path, 'images', 'pie_chart.svg'))
         self.display_on_tablet('survey_summary.html')
 
